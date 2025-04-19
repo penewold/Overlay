@@ -46,8 +46,22 @@ struct Vector3 {
 	Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
 	Vector3 operator-(const Vector3& v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
 	Vector3 operator*(float scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
-	
 };
+
+struct Vector4 {
+	float x, y, z, w;
+
+	Vector4() : x(0), y(0), z(0), w(0) {}  // Default constructor
+	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+	Vector4(Vector3 vec, float w) : x(vec.x), y(vec.y), z(vec.z), w(w) {}
+
+	// Basic operations
+	Vector4 operator+(const Vector4& v) const { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
+	Vector4 operator-(const Vector4& v) const { return Vector4(x - v.x, y - v.y, z - v.z, w - v.w); }
+	Vector4 operator*(float scalar) const { return Vector4(x * scalar, y * scalar, z * scalar, w * scalar); }
+};
+// TODO: Move to an overloading function of * in Vector3 and maybe mat4
+
 
 struct Matrix4 {
 	float m[16] {};
@@ -101,13 +115,52 @@ struct Matrix4 {
 	
 };
 
+Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat) {
+	Vector4 result;
+	result.x = vec.x * mat[0] + vec.y * mat[1] + vec.z * mat[2] + vec.w * mat[3];
+	result.y = vec.x * mat[4] + vec.y * mat[5] + vec.z * mat[6] + vec.w * mat[7];
+	result.z = vec.x * mat[8] + vec.y * mat[9] + vec.z * mat[10] + vec.w * mat[11];
+	result.w = vec.x * mat[12] + vec.y * mat[13] + vec.z * mat[14] + vec.w * mat[15];
+	return result;
+}
 
-int window_width = 1280;
-int window_height = 720;
+struct Vector2 {
+	float x, y;
+
+	Vector2() : x(0), y(0) {}
+	Vector2(float x, float y) : x(x), y(y) {}
+
+	
+};
+
+Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions) {
+	Vector4 transformed = multiplyMat4Vec4(Vector4(worldPos, 1.f), viewMatrix);
+	Vector2 screenPos;
+
+	if (transformed.w <= 0.0f) {
+		return Vector2(-1, -1); // off-screen or invalid
+	}
+
+	// Perspective divide to get NDC
+	Vector3 ndc;
+	ndc.x = transformed.x / transformed.w;
+	ndc.y = transformed.y / transformed.w;
+	ndc.z = transformed.z / transformed.w;
+
+	// Perspective divide
+	if (transformed.w != 0) {
+		screenPos.x = (ndc.x * 0.5f + 0.5f) * screenDimensions.x;
+		screenPos.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * screenDimensions.y; // Flip Y
+	}
+
+	return screenPos;
+}
+
+Vector2 screenDim(0, 0);
 
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
-	window_width = GetSystemMetrics(SM_CXSCREEN);
-	window_height = GetSystemMetrics(SM_CYSCREEN);
+	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
+	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
 
 	WNDCLASSEXW wc{};
 	wc.cbSize = sizeof(WNDCLASSEXW);
@@ -124,7 +177,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		L"Overlay",
 		WS_POPUP,
 		0, 0,
-		window_width, window_height,
+		screenDim.x, screenDim.y,
 		nullptr,
 		nullptr,
 		wc.hInstance,
@@ -257,7 +310,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			if (currentController == 0) {
 				continue;
 			}
-
+			
 			int pawnhandle = mem.Read<int>(currentController + m_hPlayerPawn);
 
 			if (pawnhandle == 0) {
@@ -267,34 +320,39 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			uintptr_t listEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((pawnhandle & 0x7FFF) >> 9) + 0x10);
 
 			uintptr_t currentPawn = mem.Read<uintptr_t>(listEntry2 + 0x78 * (pawnhandle & 0x1FF));
-
 			
-
-			// you can get teh gamescenenode earlier without getting the playerpawn because the controller the pointer to gamescenenode too
-			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentPawn + m_pGameSceneNode);
-
-			// TODO: Make function to get player pos
-			if (gameSceneNode != 0) {
-				Vector3 pos = mem.Read<Vector3>(gameSceneNode + m_vecOrigin);
-				uint8_t team = mem.Read<uint8_t>(currentPawn + m_iTeamNum);
-				if (!(pos.x == 0.f && pos.y == 0.f && pos.z == 0.f)) {
-					char outChar[100];
-					sprintf_s(outChar, "x: %.2f, y: %.2f, z: %.2f, team: %u", pos.x, pos.y, pos.z, team);
-
-					ImColor clr(1.f, 1.f, 1.f);
-					if (team == 3) {
-						clr = ImColor(0.4f, 0.4f, 1.f);
-					}
-					if (team == 2) {
-						clr = ImColor(1.f, 0.2f, 0.2f);
-					}
-					drawCircle(s, (pos.x + 2400) * 0.65, (pos.y + 2500.f) * 0.3, 5.f, clr);
-					//console = std::string(outChar);
-				}
-
+			if (currentPawn == 0) {
+				continue;
 			}
 
-			int health = mem.Read<int>(currentPawn + m_iHealth);
+			// you can get the gamescenenode earlier without getting the playerpawn because the controller has the pointer to gamescenenode too
+			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentController + m_pGameSceneNode);
+			Vector3 pos = mem.Read<Vector3>(gameSceneNode + m_vecOrigin);
+			Vector2 screenPos = worldToScreen(pos, viewMatrix, screenDim);
+			drawCircle(s, screenPos.x, screenPos.y, 5);
+			
+			// TODO: Make function to get player pos
+			if (gameSceneNode != 0) {
+				/*Vector3 pos = mem.Read<Vector3>(gameSceneNode + m_vecOrigin);
+				Vector2 screenPos = worldToScreen(pos, viewMatrix, screenDim);
+				//drawCircle(s, screenPos.x, screenPos.y, 5);
+				float flDamage = mem.Read<float>(currentController + m_flDamage);
+				if (flDamage < 1) continue;
+				char flDamageStr[46];
+				sprintf_s(flDamageStr, "%f", flDamage);
+				drawText(s, screenPos.x, screenPos.y, "grenade");
+				*/
+				/* for getting the original owner of the grenade
+				
+				int ownerHandle = mem.Read<int>(currentController + m_hThrower);
+				if (ownerHandle == 0) continue;
+				uintptr_t ownerListEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((ownerHandle & 0x7FFF) >> 9) + 0x10);
+
+				uintptr_t ownerPawn = mem.Read<uintptr_t>(ownerListEntry2 + 0x78 * (ownerHandle & 0x1FF));
+				*/
+			}
+
+			//int health = mem.Read<int>(currentPawn + m_iHealth);
 			//console = std::to_string(health);
 			
 		}
