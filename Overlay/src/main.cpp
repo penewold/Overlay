@@ -270,25 +270,29 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			// you can get the gamescenenode earlier without getting the playerpawn because the controller has the pointer to gamescenenode too
 			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentPawn + m_pGameSceneNode);
 			int32_t health = mem.Read<uintptr_t>(currentPawn + m_iHealth);
+			uint8_t teamNum = mem.Read<uint8_t>(currentPawn + m_iTeamNum);
 			CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
 
 			uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
 			uintptr_t localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
 			Vector3 localPlayerPos = mem.Read<Vector3>(localPlayerGameSceneNode + m_vecAbsOrigin);
+			uint8_t localPlayerTeamNum = mem.Read<uint8_t>(localPlayerPawn + m_iTeamNum);
 			
-			if  (localPlayerPawn != currentPawn) {
-				// Make a box around the player
-				Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
-				Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
-				Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
-				Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
-				float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
-				float width = 10000 / distanceToLocalPlayer;
+			if (localPlayerPawn == currentPawn) continue;
+			if (localPlayerTeamNum == teamNum) continue;
+			if (health == 0) continue;
+			// Make a box around the player
+			Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
+			Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
+			Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
+			Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
+			float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
+			float width = 10000 / distanceToLocalPlayer;
 
-				drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y);
-				drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
-				drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
-			}
+			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y);
+			drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
+			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
+			
 		}
 	
 		// rendering goes here
