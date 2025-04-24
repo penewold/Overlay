@@ -11,5 +11,7 @@ std::ptrdiff_t m_nSubclassID = cs2_dumper::schemas::client_dll::C_BaseEntity::m_
 std::ptrdiff_t m_hThrower = cs2_dumper::schemas::client_dll::C_BaseGrenade::m_hThrower;
 std::ptrdiff_t m_flDamage = cs2_dumper::schemas::client_dll::C_BaseGrenade::m_flDamage;
 std::ptrdiff_t m_vecOrigin = cs2_dumper::schemas::client_dll::CGameSceneNode::m_vecOrigin;
+std::ptrdiff_t m_vecAbsOrigin = cs2_dumper::schemas::client_dll::CGameSceneNode::m_vecAbsOrigin;
 std::ptrdiff_t m_iTeamNum = cs2_dumper::schemas::client_dll::C_BaseEntity::m_iTeamNum;
 std::ptrdiff_t dwViewMatrix = cs2_dumper::offsets::client_dll::dwViewMatrix;
+std::ptrdiff_t m_bLeftHanded = cs2_dumper::schemas::client_dll::C_CSPlayerPawn::m_bLeftHanded;

@@ -11,6 +11,8 @@
 
 #include <memory/memify.h>
 #include "offsets.h"
+#include "structs.h"
+#include "mathUtils.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -32,88 +34,26 @@ void drawText(ImDrawList* drawer, float x, float y, const char* text, ImColor co
 	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
 }
 
+void drawText(ImDrawList* drawer, float x, float y, int value, ImColor color = ImColor(1.f, 1.f, 1.f)) {
+	char text[50];
+	sprintf_s(text, "%d", value);
+	float textWidth = ImGui::CalcTextSize(text).x;
+	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
+}
+
 void drawCircle(ImDrawList* drawer, float x, float y, float radius, ImColor color = ImColor(1.f, 1.f, 1.f)) {
 	drawer->AddCircleFilled({ x, y }, radius, color);
 }
 
-struct Vector3 {
-	float x, y, z;
+void drawBox(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, ImColor color = ImColor(1.f, 1.f, 1.f)) {
+	drawer->AddRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, 2.f);
+}
 
-	Vector3() : x(0), y(0), z(0) {}  // Default constructor
-	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
-	// Basic operations
-	Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
-	Vector3 operator-(const Vector3& v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
-	Vector3 operator*(float scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
-};
-
-struct Vector4 {
-	float x, y, z, w;
-
-	Vector4() : x(0), y(0), z(0), w(0) {}  // Default constructor
-	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
-	Vector4(Vector3 vec, float w) : x(vec.x), y(vec.y), z(vec.z), w(w) {}
-
-	// Basic operations
-	Vector4 operator+(const Vector4& v) const { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
-	Vector4 operator-(const Vector4& v) const { return Vector4(x - v.x, y - v.y, z - v.z, w - v.w); }
-	Vector4 operator*(float scalar) const { return Vector4(x * scalar, y * scalar, z * scalar, w * scalar); }
-};
 // TODO: Move to an overloading function of * in Vector3 and maybe mat4
 
 
-struct Matrix4 {
-	float m[16] {};
 
-	Matrix4() : m() {
-		for (int i = 0; i < 16; i++) {
-			m[i] = 0.0f;
-		}
-	}
-	Matrix4(float arr[16]) : m() {
-		for (int i = 0; i < 16; i++) {
-			m[i] = arr[i];
-		}
-	}
-
-	// basic operations:
-	float operator[](int index) const {
-		if (index >= 0 && index < 16) {
-			return m[index];
-		}
-		throw std::out_of_range("Index out of range");
-	}
-	float& operator[](int index) {
-		if (index >= 0 && index < 16) {
-			return m[index];
-		}
-		throw std::out_of_range("Index out of range");
-	}
-	Matrix4 operator+(const Matrix4& inputMatrix) const { 
-		Matrix4 out;
-		for (int i = 0; i < 16; i++) {
-			out[i] = m[i] + inputMatrix[i];
-		}
-		return out;
-	}
-	Matrix4 operator-(const Matrix4& inputMatrix) const {
-		Matrix4 out;
-		for (int i = 0; i < 16; i++) {
-			out[i] = m[i] - inputMatrix[i];
-		}
-		return out;
-	}
-	Matrix4 operator*(const float scalar) const {
-		Matrix4 out;
-
-		for (int i = 0; i < 16; i++) {
-			out[i] = m[i] * scalar;
-		}
-		return out;
-	}
-	
-};
 
 Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat) {
 	Vector4 result;
@@ -296,9 +236,9 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		ImDrawList* s = ImGui::GetBackgroundDrawList();
 		
-		bool open = mem.ProcessIsOpen("cs2.exe");
+		//bool open = mem.ProcessIsOpen("cs2.exe");
 		
-		client = mem.GetBase("client.dll");
+		//client = mem.GetBase("client.dll");
 		
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
@@ -326,35 +266,19 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			}
 
 			// you can get the gamescenenode earlier without getting the playerpawn because the controller has the pointer to gamescenenode too
-			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentController + m_pGameSceneNode);
-			Vector3 pos = mem.Read<Vector3>(gameSceneNode + m_vecOrigin);
-			Vector2 screenPos = worldToScreen(pos, viewMatrix, screenDim);
-			drawCircle(s, screenPos.x, screenPos.y, 5);
+			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentPawn + m_pGameSceneNode);
+			int32_t health = mem.Read<uintptr_t>(currentPawn + m_iHealth);
+			CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
 			
-			// TODO: Make function to get player pos
-			if (gameSceneNode != 0) {
-				/*Vector3 pos = mem.Read<Vector3>(gameSceneNode + m_vecOrigin);
-				Vector2 screenPos = worldToScreen(pos, viewMatrix, screenDim);
-				//drawCircle(s, screenPos.x, screenPos.y, 5);
-				float flDamage = mem.Read<float>(currentController + m_flDamage);
-				if (flDamage < 1) continue;
-				char flDamageStr[46];
-				sprintf_s(flDamageStr, "%f", flDamage);
-				drawText(s, screenPos.x, screenPos.y, "grenade");
-				*/
-				/* for getting the original owner of the grenade
-				
-				int ownerHandle = mem.Read<int>(currentController + m_hThrower);
-				if (ownerHandle == 0) continue;
-				uintptr_t ownerListEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((ownerHandle & 0x7FFF) >> 9) + 0x10);
-
-				uintptr_t ownerPawn = mem.Read<uintptr_t>(ownerListEntry2 + 0x78 * (ownerHandle & 0x1FF));
-				*/
+			{
+				// Make a box around the player
+				Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
+				Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
+				Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
+				Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
+				drawBox(s, topScreenPos.x - 30.f, topScreenPos.y, bottomScreenPos.x + 30.f, bottomScreenPos.y);
+				drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
 			}
-
-			//int health = mem.Read<int>(currentPawn + m_iHealth);
-			//console = std::to_string(health);
-			
 		}
 		
 		drawText(s, 1100.f, 20.f, console.c_str());

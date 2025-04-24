@@ -180,7 +180,9 @@
     <ClInclude Include="external\offsets\soundsystem_dll.hpp" />
     <ClInclude Include="external\offsets\vphysics2_dll.hpp" />
     <ClInclude Include="external\offsets\worldrenderer_dll.hpp" />
+    <ClInclude Include="src\mathUtils.h" />
     <ClInclude Include="src\offsets.h" />
+    <ClInclude Include="src\structs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
