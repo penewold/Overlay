@@ -15,3 +15,5 @@ std::ptrdiff_t m_vecAbsOrigin = cs2_dumper::schemas::client_dll::CGameSceneNode:
 std::ptrdiff_t m_iTeamNum = cs2_dumper::schemas::client_dll::C_BaseEntity::m_iTeamNum;
 std::ptrdiff_t dwViewMatrix = cs2_dumper::offsets::client_dll::dwViewMatrix;
 std::ptrdiff_t m_bLeftHanded = cs2_dumper::schemas::client_dll::C_CSPlayerPawn::m_bLeftHanded;
+std::ptrdiff_t dwLocalPlayerController = cs2_dumper::offsets::client_dll::dwLocalPlayerController;
+std::ptrdiff_t dwLocalPlayerPawn = cs2_dumper::offsets::client_dll::dwLocalPlayerPawn;

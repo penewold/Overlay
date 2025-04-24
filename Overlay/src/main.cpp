@@ -210,8 +210,6 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 	uintptr_t client = mem.GetBase("client.dll");
 
-	std::string console = "";
-
 	bool running = true;
 
 	while (running) {
@@ -270,7 +268,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			int32_t health = mem.Read<uintptr_t>(currentPawn + m_iHealth);
 			CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
 			
-			{
+			if (mem.Read<uintptr_t>(client + dwLocalPlayerPawn) != currentPawn) {
 				// Make a box around the player
 				Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
 				Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
@@ -280,14 +278,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
 			}
 		}
-		
-		drawText(s, 1100.f, 20.f, console.c_str());
-		
-		console += std::string("\n\n");
-		
-		if (console.length() > 500) {
-			console.erase(0, 400);
-		}
+	
 		// rendering goes here
 
 		ImGui::Render();

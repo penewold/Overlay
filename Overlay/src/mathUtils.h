@@ -43,13 +43,13 @@ struct Matrix4 {
 		if (index >= 0 && index < 16) {
 			return m[index];
 		}
-		throw std::out_of_range("Index out of range");
+		//throw std::out_of_range("Index out of range");
 	}
 	float& operator[](int index) {
 		if (index >= 0 && index < 16) {
 			return m[index];
 		}
-		throw std::out_of_range("Index out of range");
+		//throw std::out_of_range("Index out of range");
 	}
 	Matrix4 operator+(const Matrix4& inputMatrix) const {
 		Matrix4 out;
@@ -75,3 +75,5 @@ struct Matrix4 {
 	}
 
 };
+
+float distance(Vector3 begin, Vector3 end);
