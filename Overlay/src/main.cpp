@@ -267,15 +267,23 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentPawn + m_pGameSceneNode);
 			int32_t health = mem.Read<uintptr_t>(currentPawn + m_iHealth);
 			CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
+
+			uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
+			uintptr_t localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
+			Vector3 localPlayerPos = mem.Read<Vector3>(localPlayerGameSceneNode + m_vecAbsOrigin);
 			
-			if (mem.Read<uintptr_t>(client + dwLocalPlayerPawn) != currentPawn) {
+			if  (localPlayerPawn != currentPawn) {
 				// Make a box around the player
 				Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
 				Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
 				Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
 				Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
-				drawBox(s, topScreenPos.x - 30.f, topScreenPos.y, bottomScreenPos.x + 30.f, bottomScreenPos.y);
+				float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
+				float width = 10000 / distanceToLocalPlayer;
+				drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y);
 				drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
+				drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
+				drawText(s, bottomScreenPos.x, bottomScreenPos.y + 20, (int)width);
 			}
 		}
 	
