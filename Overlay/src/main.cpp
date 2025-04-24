@@ -45,6 +45,10 @@ void drawCircle(ImDrawList* drawer, float x, float y, float radius, ImColor colo
 	drawer->AddCircleFilled({ x, y }, radius, color);
 }
 
+void drawCircle(ImDrawList* drawer, float x, float y, float radius, float width, ImColor color = ImColor(1.f, 1.f, 1.f)) {
+	drawer->AddCircle({ x, y }, radius, color, 0, width);
+}
+
 void drawBox(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, ImColor color = ImColor(1.f, 1.f, 1.f)) {
 	drawer->AddRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, 2.f);
 }
@@ -280,10 +284,10 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
 				float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
 				float width = 10000 / distanceToLocalPlayer;
+
 				drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y);
 				drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
 				drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
-				drawText(s, bottomScreenPos.x, bottomScreenPos.y + 20, (int)width);
 			}
 		}
 	
