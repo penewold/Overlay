@@ -1463,7 +1463,7 @@ namespace cs2_dumper {
             // NetworkVarNames: m_bDucked (bool)
             // NetworkVarNames: m_bDucking (bool)
             // NetworkVarNames: m_bInDuckJump (bool)
-            namespace CPlayer_MovementServices_Humanoid { // Important
+            namespace CPlayer_MovementServices_Humanoid {
                 constexpr std::ptrdiff_t m_flStepSoundTime = 0x1D8; // float32
                 constexpr std::ptrdiff_t m_flFallVelocity = 0x1DC; // float32
                 constexpr std::ptrdiff_t m_bInCrouch = 0x1E0; // bool
@@ -2690,7 +2690,7 @@ namespace cs2_dumper {
                 constexpr std::ptrdiff_t m_pUseServices = 0x11D0; // CPlayer_UseServices*
                 constexpr std::ptrdiff_t m_pFlashlightServices = 0x11D8; // CPlayer_FlashlightServices*
                 constexpr std::ptrdiff_t m_pCameraServices = 0x11E0; // CPlayer_CameraServices*
-                constexpr std::ptrdiff_t m_pMovementServices = 0x11E8; // CPlayer_MovementServices*  IMPORTANT
+                constexpr std::ptrdiff_t m_pMovementServices = 0x11E8; // CPlayer_MovementServices*
                 constexpr std::ptrdiff_t m_ServerViewAngleChanges = 0x11F8; // C_UtlVectorEmbeddedNetworkVar<ViewAngleServerChange_t>
                 constexpr std::ptrdiff_t m_nHighestConsumedServerViewAngleChangeIndex = 0x1248; // uint32
                 constexpr std::ptrdiff_t v_angle = 0x124C; // QAngle
