@@ -77,3 +77,6 @@ struct Matrix4 {
 };
 
 float distance(Vector3 begin, Vector3 end);
+
+Vector3 lerp(Vector3 begin, Vector3 end, float t);
+Vector3 normalize(Vector3 vec);
