@@ -29,3 +29,7 @@ Vector3 normalize(Vector3 vec)
 	}
 	return { vec.x / length, vec.y / length, vec.z / length };
 }
+
+float lerp(float begin, float end, float t) {
+	return begin + (end - begin) * t;
+}

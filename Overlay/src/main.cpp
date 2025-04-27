@@ -49,8 +49,12 @@ void drawCircle(ImDrawList* drawer, float x, float y, float radius, float width,
 	drawer->AddCircle({ x, y }, radius, color, 0, width);
 }
 
-void drawBox(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, 2.f);
+void drawBox(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, float rounding = 0.f, ImColor color = ImColor(1.f, 1.f, 1.f)) {
+	drawer->AddRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, rounding);
+}
+
+void drawBoxFilled(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, float rounding = 0.f, ImColor color = ImColor(1.f, 1.f, 1.f)) {
+	drawer->AddRectFilled(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, rounding);
 }
 
 
@@ -299,8 +303,9 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			ImColor rainbowColor;
 			int rainbowTime = 2000;
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
-			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, rainbowColor);
-			drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health, healthTextColor);
+			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
+			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 7.f, lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f), topScreenPos.y - 3.f, 0.f, boxColor);
+			
 			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
 			
 		}
