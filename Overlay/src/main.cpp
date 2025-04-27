@@ -102,6 +102,13 @@ Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimens
 
 Vector2 screenDim(0, 0);
 
+// Settings:
+ImColor boxColor = ImColor(1.f, 0.3f, 0.1f);
+ImColor healthTextColor = ImColor(0.1f, 0.9f, 0.1f);
+
+bool doTeamCheck = true;
+bool doHealthCheck = true;
+
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
 	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
@@ -279,8 +286,8 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			uint8_t localPlayerTeamNum = mem.Read<uint8_t>(localPlayerPawn + m_iTeamNum);
 			
 			if (localPlayerPawn == currentPawn) continue;
-			if (localPlayerTeamNum == teamNum) continue;
-			if (health == 0) continue;
+			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
+			if (health == 0 && doHealthCheck) continue;
 			// Make a box around the player
 			Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
 			Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
@@ -289,8 +296,11 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
 			float width = 10000 / distanceToLocalPlayer;
 
-			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y);
-			drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health);
+			ImColor rainbowColor;
+			int rainbowTime = 2000;
+			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
+			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, rainbowColor);
+			drawText(s, topScreenPos.x, topScreenPos.y - 12.f, health, healthTextColor);
 			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
 			
 		}
