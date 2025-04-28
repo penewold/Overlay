@@ -13,6 +13,7 @@
 #include "offsets.h"
 #include "structs.h"
 #include "mathUtils.h"
+#include "drawUtils.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -28,38 +29,6 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 
 	return DefWindowProc(window, message, w_param, l_param);
 }
-
-void drawText(ImDrawList* drawer, float x, float y, const char* text, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	float textWidth = ImGui::CalcTextSize(text).x;
-	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
-}
-
-void drawText(ImDrawList* drawer, float x, float y, int value, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	char text[50];
-	sprintf_s(text, "%d", value);
-	float textWidth = ImGui::CalcTextSize(text).x;
-	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
-}
-
-void drawCircle(ImDrawList* drawer, float x, float y, float radius, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddCircleFilled({ x, y }, radius, color);
-}
-
-void drawCircle(ImDrawList* drawer, float x, float y, float radius, float width, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddCircle({ x, y }, radius, color, 0, width);
-}
-
-void drawBox(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, float rounding = 0.f, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, rounding);
-}
-
-void drawBoxFilled(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, float rounding = 0.f, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddRectFilled(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, rounding);
-}
-
-
-// TODO: Move to an overloading function of * in Vector3 and maybe mat4
-
 
 
 

@@ -148,6 +148,7 @@
     <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\drawUtils.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtils.cpp" />
   </ItemGroup>
@@ -181,6 +182,7 @@
     <ClInclude Include="external\offsets\soundsystem_dll.hpp" />
     <ClInclude Include="external\offsets\vphysics2_dll.hpp" />
     <ClInclude Include="external\offsets\worldrenderer_dll.hpp" />
+    <ClInclude Include="src\drawUtils.h" />
     <ClInclude Include="src\mathUtils.h" />
     <ClInclude Include="src\offsets.h" />
     <ClInclude Include="src\structs.h" />
