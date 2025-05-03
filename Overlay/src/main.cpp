@@ -107,7 +107,7 @@ Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimens
 Vector2 screenDim(0, 0);
 
 // Settings:
-ImColor boxColor = ImColor(1.f, 0.3f, 0.1f);
+ImColor boxColor = ImColor(1.f, 0.1f, 0.1f);
 ImColor healthTextColor = ImColor(0.1f, 0.9f, 0.1f);
 
 bool doTeamCheck = true;
@@ -304,7 +304,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			int rainbowTime = 2000;
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
-			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 7.f, lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f), topScreenPos.y - 3.f, 0.f, boxColor);
+			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 3.f, lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f), topScreenPos.y - 1.f, 0.f, boxColor);
 			
 			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
 			
