@@ -14,6 +14,7 @@
 #include "structs.h"
 #include "mathUtils.h"
 #include "drawUtils.h"
+#include "logger.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -31,48 +32,6 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 }
 
 
-
-Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat) {
-	Vector4 result;
-	result.x = vec.x * mat[0] + vec.y * mat[1] + vec.z * mat[2] + vec.w * mat[3];
-	result.y = vec.x * mat[4] + vec.y * mat[5] + vec.z * mat[6] + vec.w * mat[7];
-	result.z = vec.x * mat[8] + vec.y * mat[9] + vec.z * mat[10] + vec.w * mat[11];
-	result.w = vec.x * mat[12] + vec.y * mat[13] + vec.z * mat[14] + vec.w * mat[15];
-	return result;
-}
-
-struct Vector2 {
-	float x, y;
-
-	Vector2() : x(0), y(0) {}
-	Vector2(float x, float y) : x(x), y(y) {}
-
-	
-};
-
-Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions) {
-	Vector4 transformed = multiplyMat4Vec4(Vector4(worldPos, 1.f), viewMatrix);
-	Vector2 screenPos;
-
-	if (transformed.w <= 0.0f) {
-		return Vector2(-1, -1); // off-screen or invalid
-	}
-
-	// Perspective divide to get NDC
-	Vector3 ndc;
-	ndc.x = transformed.x / transformed.w;
-	ndc.y = transformed.y / transformed.w;
-	ndc.z = transformed.z / transformed.w;
-
-	// Perspective divide
-	if (transformed.w != 0) {
-		screenPos.x = (ndc.x * 0.5f + 0.5f) * screenDimensions.x;
-		screenPos.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * screenDimensions.y; // Flip Y
-	}
-
-	return screenPos;
-}
-
 Vector2 screenDim(0, 0);
 
 // Settings:
@@ -83,6 +42,12 @@ bool doTeamCheck = true;
 bool doHealthCheck = true;
 
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
+
+	#ifdef _DEBUG
+	initLogger();
+	#endif
+
+
 	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
 	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
 
@@ -108,7 +73,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		nullptr
 	);
 
-
+	
 
 	SetLayeredWindowAttributes(window, RGB(0, 0, 0), BYTE(255), LWA_ALPHA);
 
@@ -218,9 +183,6 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		ImDrawList* s = ImGui::GetBackgroundDrawList();
 		
-		//bool open = mem.ProcessIsOpen("cs2.exe");
-		
-		//client = mem.GetBase("client.dll");
 		
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
@@ -273,7 +235,8 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			int rainbowTime = 2000;
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
-			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 7.f, lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f), topScreenPos.y - 3.f, 0.f, boxColor);
+			float healthbarPos = lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f);
+			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 7.f, healthbarPos, topScreenPos.y - 3.f, 0.f, boxColor);
 			
 			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
 			
