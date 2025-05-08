@@ -35,7 +35,7 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 Vector2 screenDim(0, 0);
 
 // Settings:
-ImColor boxColor = ImColor(1.f, 0.3f, 0.1f);
+ImColor boxColor = ImColor(1.f, 0.1f, 0.1f);
 ImColor healthTextColor = ImColor(0.1f, 0.9f, 0.1f);
 
 bool doTeamCheck = true;
