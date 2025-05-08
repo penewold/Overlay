@@ -41,6 +41,8 @@ ImColor healthTextColor = ImColor(0.1f, 0.9f, 0.1f);
 bool doTeamCheck = true;
 bool doHealthCheck = true;
 
+// Start do rendering rewrite
+
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 	#ifdef _DEBUG
