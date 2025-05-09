@@ -33,3 +33,37 @@ Vector3 normalize(Vector3 vec)
 float lerp(float begin, float end, float t) {
 	return begin + (end - begin) * t;
 }
+
+Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat) {
+	Vector4 result;
+	result.x = vec.x * mat[0] + vec.y * mat[1] + vec.z * mat[2] + vec.w * mat[3];
+	result.y = vec.x * mat[4] + vec.y * mat[5] + vec.z * mat[6] + vec.w * mat[7];
+	result.z = vec.x * mat[8] + vec.y * mat[9] + vec.z * mat[10] + vec.w * mat[11];
+	result.w = vec.x * mat[12] + vec.y * mat[13] + vec.z * mat[14] + vec.w * mat[15];
+	return result;
+}
+
+
+
+Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions) {
+	Vector4 transformed = multiplyMat4Vec4(Vector4(worldPos, 1.f), viewMatrix);
+	Vector2 screenPos;
+
+	if (transformed.w <= 0.0f) {
+		return Vector2(-1, -1); // off-screen or invalid
+	}
+
+	// Perspective divide to get NDC
+	Vector3 ndc;
+	ndc.x = transformed.x / transformed.w;
+	ndc.y = transformed.y / transformed.w;
+	ndc.z = transformed.z / transformed.w;
+
+	// Perspective divide
+	if (transformed.w != 0) {
+		screenPos.x = (ndc.x * 0.5f + 0.5f) * screenDimensions.x;
+		screenPos.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * screenDimensions.y; // Flip Y
+	}
+
+	return screenPos;
+}

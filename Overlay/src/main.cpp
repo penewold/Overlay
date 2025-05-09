@@ -13,6 +13,7 @@
 #include "offsets.h"
 #include "structs.h"
 #include "mathUtils.h"
+#include "drawUtils.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -29,80 +30,7 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-void drawText(ImDrawList* drawer, float x, float y, const char* text, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	float textWidth = ImGui::CalcTextSize(text).x;
-	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
-}
 
-void drawText(ImDrawList* drawer, float x, float y, int value, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	char text[50];
-	sprintf_s(text, "%d", value);
-	float textWidth = ImGui::CalcTextSize(text).x;
-	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
-}
-
-void drawCircle(ImDrawList* drawer, float x, float y, float radius, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddCircleFilled({ x, y }, radius, color);
-}
-
-void drawCircle(ImDrawList* drawer, float x, float y, float radius, float width, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddCircle({ x, y }, radius, color, 0, width);
-}
-
-void drawBox(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, float rounding = 0.f, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, rounding);
-}
-
-void drawBoxFilled(ImDrawList* drawer, float xMin, float yMin, float xMax, float yMax, float rounding = 0.f, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	drawer->AddRectFilled(ImVec2(xMin, yMin), ImVec2(xMax, yMax), color, rounding);
-}
-
-
-// TODO: Move to an overloading function of * in Vector3 and maybe mat4
-
-
-
-
-Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat) {
-	Vector4 result;
-	result.x = vec.x * mat[0] + vec.y * mat[1] + vec.z * mat[2] + vec.w * mat[3];
-	result.y = vec.x * mat[4] + vec.y * mat[5] + vec.z * mat[6] + vec.w * mat[7];
-	result.z = vec.x * mat[8] + vec.y * mat[9] + vec.z * mat[10] + vec.w * mat[11];
-	result.w = vec.x * mat[12] + vec.y * mat[13] + vec.z * mat[14] + vec.w * mat[15];
-	return result;
-}
-
-struct Vector2 {
-	float x, y;
-
-	Vector2() : x(0), y(0) {}
-	Vector2(float x, float y) : x(x), y(y) {}
-
-	
-};
-
-Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions) {
-	Vector4 transformed = multiplyMat4Vec4(Vector4(worldPos, 1.f), viewMatrix);
-	Vector2 screenPos;
-
-	if (transformed.w <= 0.0f) {
-		return Vector2(-1, -1); // off-screen or invalid
-	}
-
-	// Perspective divide to get NDC
-	Vector3 ndc;
-	ndc.x = transformed.x / transformed.w;
-	ndc.y = transformed.y / transformed.w;
-	ndc.z = transformed.z / transformed.w;
-
-	// Perspective divide
-	if (transformed.w != 0) {
-		screenPos.x = (ndc.x * 0.5f + 0.5f) * screenDimensions.x;
-		screenPos.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * screenDimensions.y; // Flip Y
-	}
-
-	return screenPos;
-}
 
 Vector2 screenDim(0, 0);
 
