@@ -14,6 +14,7 @@
 #include "structs.h"
 #include "mathUtils.h"
 #include "drawUtils.h"
+#include "logger.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -31,7 +32,6 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 }
 
 
-
 Vector2 screenDim(0, 0);
 
 // Settings:
@@ -42,6 +42,12 @@ bool doTeamCheck = true;
 bool doHealthCheck = true;
 
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
+
+	#ifdef _DEBUG
+	initLogger();
+	#endif
+
+
 	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
 	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
 
@@ -67,7 +73,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		nullptr
 	);
 
-
+	
 
 	SetLayeredWindowAttributes(window, RGB(0, 0, 0), BYTE(255), LWA_ALPHA);
 
@@ -177,9 +183,6 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		ImDrawList* s = ImGui::GetBackgroundDrawList();
 		
-		//bool open = mem.ProcessIsOpen("cs2.exe");
-		
-		//client = mem.GetBase("client.dll");
 		
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
@@ -232,7 +235,8 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			int rainbowTime = 2000;
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
-			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 3.f, lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f), topScreenPos.y - 1.f, 0.f, boxColor);
+			float healthbarPos = lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f);
+			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 7.f, healthbarPos, topScreenPos.y - 3.f, 0.f, boxColor);
 			
 			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
 			

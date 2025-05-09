@@ -1,4 +1,14 @@
 #pragma once
+
+struct Vector2 {
+	float x, y;
+
+	Vector2() : x(0), y(0) {}
+	Vector2(float x, float y) : x(x), y(y) {}
+
+
+};
+
 struct Vector3 {
 	float x, y, z;
 
@@ -89,7 +99,6 @@ Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat);
 Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions);
 
 float distance(Vector3 begin, Vector3 end);
-
 Vector3 lerp(Vector3 begin, Vector3 end, float t);
 float lerp(float begin, float end, float t);
 Vector3 normalize(Vector3 vec);
