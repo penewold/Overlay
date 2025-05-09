@@ -13,7 +13,7 @@ void drawText(ImDrawList* drawer, float x, float y, const char* text, ImColor co
 }
 
 void drawText(ImDrawList* drawer, float x, float y, int value, ImColor color = ImColor(1.f, 1.f, 1.f)) {
-	char text[50];
+	char text[128];
 	sprintf_s(text, "%d", value);
 	float textWidth = ImGui::CalcTextSize(text).x;
 	drawer->AddText({ x - textWidth * 0.5f, y }, color, text);
