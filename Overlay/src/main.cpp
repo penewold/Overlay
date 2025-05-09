@@ -40,6 +40,8 @@ ImColor healthTextColor = ImColor(0.1f, 0.9f, 0.1f);
 
 bool doTeamCheck = true;
 bool doHealthCheck = true;
+bool doNameEsp = true;
+bool doRainbowBoxEsp = true;
 
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
@@ -234,11 +236,16 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			ImColor rainbowColor;
 			int rainbowTime = 2000;
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
-			drawBox(s, topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
-			float healthbarPos = lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f);
-			drawBoxFilled(s, topScreenPos.x - width, topScreenPos.y - 7.f, healthbarPos, topScreenPos.y - 3.f, 0.f, boxColor);
-			
-			//drawText(s, bottomScreenPos.x, bottomScreenPos.y, (int)distance(localPlayerPos, bottomPos));
+			drawBox(s, bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
+
+			float healthbarPos = lerp(bottomScreenPos.y, topScreenPos.y, health / 100.f);
+			// xMin, yMin, xMax, yMax
+			drawBoxFilled(s, bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, 0.f, boxColor);
+
+			if (!doNameEsp) continue;
+			char playerName[128];
+			mem.ReadRaw(currentController + m_iszPlayerName, playerName, sizeof(playerName));
+			drawText(s, bottomScreenPos.x, bottomScreenPos.y, playerName);
 			
 		}
 	

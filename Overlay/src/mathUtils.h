@@ -86,14 +86,6 @@ struct Matrix4 {
 
 };
 
-struct Vector2 {
-	float x, y;
-
-	Vector2() : x(0), y(0) {}
-	Vector2(float x, float y) : x(x), y(y) {}
-
-
-};
 
 Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat);
 Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions);
