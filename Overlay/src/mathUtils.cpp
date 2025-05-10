@@ -1,5 +1,5 @@
 #include "mathUtils.h"
-#include <math.h>
+
 
 float distance(Vector3 begin, Vector3 end) {
 	float dx = begin.x - end.x;
@@ -66,3 +66,9 @@ float lerp(float begin, float end, float t) {
 	return begin + (end - begin) * t;
 }
 
+ImColor lerp(ImColor start, ImColor end, float t) {
+	float r = lerp(start.Value.x, end.Value.x, t);
+	float g = lerp(start.Value.y, end.Value.y, t);
+	float b = lerp(start.Value.z, end.Value.z, t);
+	return ImColor(r, g, b);
+}

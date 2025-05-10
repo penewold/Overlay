@@ -1,4 +1,6 @@
 #pragma once
+#include <math.h>
+#include "imgui/imgui.h"
 
 struct Vector2 {
 	float x, y;
@@ -94,3 +96,5 @@ float distance(Vector3 begin, Vector3 end);
 Vector3 lerp(Vector3 begin, Vector3 end, float t);
 float lerp(float begin, float end, float t);
 Vector3 normalize(Vector3 vec);
+
+ImColor lerp(ImColor start, ImColor end, float t);

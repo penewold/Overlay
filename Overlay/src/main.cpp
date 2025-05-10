@@ -36,7 +36,8 @@ Vector2 screenDim(0, 0);
 
 // Settings:
 ImColor boxColor = ImColor(1.f, 0.1f, 0.1f);
-ImColor healthTextColor = ImColor(0.1f, 0.9f, 0.1f);
+ImColor healthStartColor = ImColor(0.f, 1.f, 0.f);
+ImColor healthEndColor = ImColor(1.f, 0.f, 0.f);
 
 bool doTeamCheck = true;
 bool doHealthCheck = true;
@@ -238,9 +239,10 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 			drawBox(s, bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, 2.f, rainbowColor);
 
+			ImColor healthBarColor = lerp(healthStartColor, healthEndColor, 1.f - (health / 100.f));
 			float healthbarPos = lerp(bottomScreenPos.y, topScreenPos.y, health / 100.f);
 			// xMin, yMin, xMax, yMax
-			drawBoxFilled(s, bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, 0.f, boxColor);
+			drawBoxFilled(s, bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, 0.f, healthBarColor);
 
 			if (!doNameEsp) continue;
 			char playerName[128];
