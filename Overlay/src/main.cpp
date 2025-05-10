@@ -99,10 +99,17 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			ImColor rainbowColor;
 			int rainbowTime = 2000;
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
-			drawer.drawBox(topScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, rainbowColor, 2.f);
-			float healthbarPos = lerp(topScreenPos.x - width, bottomScreenPos.x + width, health / 100.f);
-			drawer.drawBoxFilled(topScreenPos.x - width, topScreenPos.y - 7.f, healthbarPos, topScreenPos.y - 3.f, boxColor, 0.f);
-			
+			drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, rainbowColor, 2.f);
+
+			ImColor healthBarColor = lerp(healthStartColor, healthEndColor, 1.f - (health / 100.f));
+			float healthbarPos = lerp(bottomScreenPos.y, topScreenPos.y, health / 100.f);
+			// xMin, yMin, xMax, yMax
+			drawer.drawBoxFilled(bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, healthBarColor, 0.f);
+
+			if (!doNameEsp) continue;
+			char playerName[128];
+			mem.ReadRaw(currentController + m_iszPlayerName, playerName, sizeof(playerName));
+			drawer.drawText(playerName, bottomScreenPos.x, bottomScreenPos.y);
 		}
 	
 		drawer.drawFrame();
