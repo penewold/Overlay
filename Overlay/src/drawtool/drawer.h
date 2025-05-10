@@ -4,6 +4,8 @@
 #include <imgui/imgui_impl_win32.h>
 
 #include <Windows.h>
+#include <dwmapi.h>
+#include <d3d11.h>
 /*
 * ------ PLANNED USAGE ------
 * Drawer drawer(width, height, fps, instance, cmdShow);
@@ -51,10 +53,7 @@ private:
 
 };
 
-Drawer::Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow)
-{
-}
-
-Drawer::~Drawer()
-{
-}
+WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance);
+const HWND makeWindow(WNDCLASSEXW wc, HINSTANCE instance, float width, float height, const wchar_t* windowName);
+void adjustWindowRect(HWND window);
+DXGI_SWAP_CHAIN_DESC makeSwapChainDesc(HWND window, UINT targetfps);

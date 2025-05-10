@@ -15,21 +15,9 @@
 #include "mathUtils.h"
 #include "drawUtils.h"
 #include "logger.h"
+#include "drawtool/drawer.h"
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
-	if (ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param)) {
-		return 0L;
-	}
-
-	if (message == WM_DESTROY) {
-		PostQuitMessage(0);
-		return 0L;
-	}
-
-	return DefWindowProc(window, message, w_param, l_param);
-}
 
 
 Vector2 screenDim(0, 0);
@@ -49,67 +37,15 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	initLogger();
 	#endif
 
-
 	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
 	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
 
-	WNDCLASSEXW wc{};
-	wc.cbSize = sizeof(WNDCLASSEXW);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = window_procedure;
-	wc.hInstance = instance;
-	wc.lpszClassName = L"Overlay Class";
-
+	WNDCLASSEXW wc = makeWindowClass(L"Overlay Class", instance);
 	RegisterClassExW(&wc);
-
-	const HWND window = CreateWindowExW(
-		WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_LAYERED,
-		wc.lpszClassName,
-		L"Overlay",
-		WS_POPUP,
-		0, 0,
-		screenDim.x, screenDim.y,
-		nullptr,
-		nullptr,
-		wc.hInstance,
-		nullptr
-	);
-
-	
-
+	HWND window = makeWindow(wc, instance, screenDim.x, screenDim.y, L"Overlay");
 	SetLayeredWindowAttributes(window, RGB(0, 0, 0), BYTE(255), LWA_ALPHA);
-
-	{
-		RECT client_area{};
-		GetClientRect(window, &client_area);
-
-		RECT window_area{};
-		GetWindowRect(window, &window_area);
-
-		POINT diff{};
-		ClientToScreen(window, &diff);
-
-		const MARGINS margins{
-			window_area.left + (diff.x - window_area.left),
-			window_area.top + (diff.y - window_area.top),
-			client_area.right,
-			client_area.bottom
-		};
-
-		DwmExtendFrameIntoClientArea(window, &margins);
-	}
-
-	DXGI_SWAP_CHAIN_DESC sd{};
-	sd.BufferDesc.RefreshRate.Numerator = 60U;
-	sd.BufferDesc.RefreshRate.Denominator = 1U;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.SampleDesc.Count = 1U;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 2U;
-	sd.OutputWindow = window;
-	sd.Windowed = TRUE;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	adjustWindowRect(window);
+	DXGI_SWAP_CHAIN_DESC sd = makeSwapChainDesc(window, 60U);
 
 	constexpr D3D_FEATURE_LEVEL levels[2]{
 		D3D_FEATURE_LEVEL_11_0,
@@ -244,7 +180,6 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			
 		}
 	
-		// rendering goes here
 
 		ImGui::Render();
 
