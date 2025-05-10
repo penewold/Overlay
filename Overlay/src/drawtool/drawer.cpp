@@ -97,6 +97,98 @@ Drawer::~Drawer()
 	UnregisterClassW(windowClass.lpszClassName, windowClass.hInstance);
 }
 
+
+void Drawer::initFrame(void (*quitFunction)()) {
+	MSG msg;
+	while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+
+		if (msg.message == WM_QUIT) {
+			quitFunction();
+		}
+	}
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+
+	ImGui::NewFrame();
+
+	Drawer::backgroundDrawList = ImGui::GetBackgroundDrawList();
+}
+
+void Drawer::drawFrame() {
+	ImGui::Render();
+
+	const float color[4]{ 0.f, 0.f, 0.f, 0.f };
+	deviceContext->OMSetRenderTargets(1U, &renderTargetView, nullptr);
+	deviceContext->ClearRenderTargetView(renderTargetView, color);
+	
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	swapChain->Present(1U, 0U); // set 1st arg to 0 to turn off vsync
+}
+
+void Drawer::drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding) {
+	backgroundDrawList->AddRect(
+		ImVec2(xMinimum, yMinimum),
+		ImVec2(xMaximum, yMaximum),
+		color,
+		rounding
+	);
+}
+
+void Drawer::drawBoxFilled(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding) {
+	backgroundDrawList->AddRectFilled(
+		ImVec2(xMinimum, yMinimum),
+		ImVec2(xMaximum, yMaximum),
+		color,
+		rounding
+	);
+}
+
+void Drawer::drawLine(float xStart, float yStart, float xEnd, float yEnd, ImColor color, float thickness) {
+	backgroundDrawList->AddLine(
+		ImVec2(xStart, yStart),
+		ImVec2(xEnd, yEnd),
+		color,
+		thickness
+	);
+}
+
+void Drawer::drawCircle(float xCenter, float yCenter, float radius, ImColor color) {
+	backgroundDrawList->AddCircle(
+		ImVec2(xCenter, yCenter),
+		radius,
+		color
+	);
+}
+
+void Drawer::drawCircleFilled(float xCenter, float yCenter, float radius, ImColor color) {
+	backgroundDrawList->AddCircleFilled(
+		ImVec2(xCenter, yCenter),
+		radius,
+		color
+	);
+}
+
+void Drawer::drawText(char* text, float x, float y, ImColor color) {
+	backgroundDrawList->AddText(
+		ImVec2(x, y),
+		color,
+		text
+	);
+}
+
+void Drawer::drawTextCentered(char* text, float x, float y, ImColor color) {
+	ImVec2 textSize = ImGui::CalcTextSize(text);
+	backgroundDrawList->AddText(
+		ImVec2(x - textSize.x / 2.f, y - textSize.y / 2.f),
+		color,
+		text
+	);
+}
+
 WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance) {
 	WNDCLASSEXW wc{};
 	wc.cbSize = sizeof(WNDCLASSEXW);

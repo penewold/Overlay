@@ -48,17 +48,20 @@ public:
 	D3D_FEATURE_LEVEL level{};
 	ID3D11Texture2D* backBuffer{ nullptr };
 
+	ImDrawList* backgroundDrawList{ nullptr };
+
 	Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow);
 	~Drawer();
 
-	void initFrame();
+	// Pass your own function for quitting as the argument
+	void initFrame(void (*quitFunction)());
 	void drawFrame();
 
 	void drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color = ImColor(1.f, 1.f, 1.f), float rounding = 0);
 	void drawBoxFilled(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color = ImColor(1.f, 1.f, 1.f), float rounding = 0);
 	void drawLine(float xStart, float yStart, float xEnd, float yEnd, ImColor color = ImColor(1.f, 1.f, 1.f), float thickness = 1);
-	void drawEllipse(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color = ImColor(1.f, 1.f, 1.f));
-	void drawEllipseFilled(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color = ImColor(1.f, 1.f, 1.f));
+	void drawCircle(float xCenter, float yCenter, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));
+	void drawCircleFilled(float xCenter, float yCenter, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));
 	void drawText(char* text, float x, float y, ImColor color = ImColor(1.f, 1.f, 1.f));
 	void drawTextCentered(char* text, float x, float y, ImColor color = ImColor(1.f, 1.f, 1.f));
 
