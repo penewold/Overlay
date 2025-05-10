@@ -13,12 +13,8 @@
 #include "offsets.h"
 #include "structs.h"
 #include "mathUtils.h"
-#include "drawUtils.h"
 #include "logger.h"
 #include "drawtool/drawer.h"
-
-
-
 
 Vector2 screenDim(0, 0);
 
