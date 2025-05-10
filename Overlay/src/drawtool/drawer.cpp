@@ -189,7 +189,7 @@ void Drawer::drawTextCentered(char* text, float x, float y, ImColor color) {
 	);
 }
 
-WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance) {
+WNDCLASSEXW Drawer::makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance) {
 	WNDCLASSEXW wc{};
 	wc.cbSize = sizeof(WNDCLASSEXW);
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -199,7 +199,7 @@ WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInsta
 	return wc;
 }
 
-const HWND makeWindow(WNDCLASSEXW windowClass, HINSTANCE instance, float width, float height, const wchar_t* windowName) {
+const HWND Drawer::makeWindow(WNDCLASSEXW windowClass, HINSTANCE instance, float width, float height, const wchar_t* windowName) {
 	const HWND window = CreateWindowExW(
 		WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_LAYERED,
 		windowClass.lpszClassName,
@@ -215,7 +215,7 @@ const HWND makeWindow(WNDCLASSEXW windowClass, HINSTANCE instance, float width, 
 	return window;
 }
 
-void adjustWindowRect(HWND window) {
+void Drawer::adjustWindowRect(HWND window) {
 	
 	RECT client_area{};
 	GetClientRect(window, &client_area);
@@ -237,7 +237,7 @@ void adjustWindowRect(HWND window) {
 	
 }
 
-DXGI_SWAP_CHAIN_DESC makeSwapChainDesc(HWND window, UINT targetfps) {
+DXGI_SWAP_CHAIN_DESC Drawer::makeSwapChainDesc(HWND window, UINT targetfps) {
 	DXGI_SWAP_CHAIN_DESC sd{};
 	sd.BufferDesc.RefreshRate.Numerator = targetfps;
 	sd.BufferDesc.RefreshRate.Denominator = 1U;

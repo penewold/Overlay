@@ -37,19 +37,6 @@
 class Drawer
 {
 public:
-
-	WNDCLASSEXW windowClass{};
-	HWND window{ nullptr };
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	ID3D11Device* device{ nullptr };
-	ID3D11DeviceContext* deviceContext{ nullptr };
-	IDXGISwapChain* swapChain{ nullptr };
-	ID3D11RenderTargetView* renderTargetView{ nullptr };
-	D3D_FEATURE_LEVEL level{};
-	ID3D11Texture2D* backBuffer{ nullptr };
-
-	ImDrawList* backgroundDrawList{ nullptr };
-
 	Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow);
 	~Drawer();
 
@@ -66,10 +53,21 @@ public:
 	void drawTextCentered(char* text, float x, float y, ImColor color = ImColor(1.f, 1.f, 1.f));
 
 private:
+	WNDCLASSEXW windowClass{};
+	HWND window{ nullptr };
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ID3D11Device* device{ nullptr };
+	ID3D11DeviceContext* deviceContext{ nullptr };
+	IDXGISwapChain* swapChain{ nullptr };
+	ID3D11RenderTargetView* renderTargetView{ nullptr };
+	D3D_FEATURE_LEVEL level{};
+	ID3D11Texture2D* backBuffer{ nullptr };
 
+	ImDrawList* backgroundDrawList{ nullptr };
+
+	WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance);
+	const HWND makeWindow(WNDCLASSEXW wc, HINSTANCE instance, float width, float height, const wchar_t* windowName);
+	void adjustWindowRect(HWND window);
+	DXGI_SWAP_CHAIN_DESC makeSwapChainDesc(HWND window, UINT targetfps);
 };
 
-WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance);
-const HWND makeWindow(WNDCLASSEXW wc, HINSTANCE instance, float width, float height, const wchar_t* windowName);
-void adjustWindowRect(HWND window);
-DXGI_SWAP_CHAIN_DESC makeSwapChainDesc(HWND window, UINT targetfps);
