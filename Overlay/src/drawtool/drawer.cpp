@@ -17,15 +17,84 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 
 Drawer::Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow)
 {
-	// Init Windows windowclass
-	WNDCLASSEXW wc = makeWindowClass(L"Overlay Class", instance);
-	RegisterClassExW(&wc);
 
+	// -- Init Windows/D3D11 --
+	// Init Windows windowclass
+	Drawer::windowClass = makeWindowClass(L"Overlay Class", instance);
+	RegisterClassExW(&windowClass);
+
+	Drawer::window = makeWindow(windowClass, instance, width, height, L"Overlay");
+	SetLayeredWindowAttributes(window, RGB(0, 0, 0), BYTE(255), LWA_ALPHA);
+	adjustWindowRect(window);
+
+	Drawer::swapChainDesc = makeSwapChainDesc(window, 60U);
+
+	constexpr D3D_FEATURE_LEVEL levels[2]{
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_0
+	};
 	
+	D3D11CreateDeviceAndSwapChain(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		0U,
+		levels,
+		2U,
+		D3D11_SDK_VERSION,
+		&swapChainDesc,
+		&swapChain,
+		&device,
+		&level,
+		&deviceContext
+	);
+
+	swapChain->GetBuffer(0U, IID_PPV_ARGS(&backBuffer));
+
+	if (backBuffer) {
+		device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView);
+		backBuffer->Release();
+	}
+	else {
+		throw std::runtime_error("Failed to create back buffer");
+	}
+
+	ShowWindow(window, cmdShow);
+	UpdateWindow(window);
+
+	// -- Init ImGui --
+	ImGui::CreateContext();
+	ImGui::StyleColorsClassic();
+
+	ImGui_ImplWin32_Init(window);
+	ImGui_ImplDX11_Init(device, deviceContext);
 }
 
 Drawer::~Drawer()
 {
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+
+	ImGui::DestroyContext();
+
+	if (swapChain) {
+		swapChain->Release();
+	}
+
+	if (deviceContext) {
+		deviceContext->Release();
+	}
+
+	if (device) {
+		device->Release();
+	}
+
+	if (renderTargetView) {
+		renderTargetView->Release();
+	}
+
+	DestroyWindow(window);
+	UnregisterClassW(windowClass.lpszClassName, windowClass.hInstance);
 }
 
 WNDCLASSEXW makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance) {

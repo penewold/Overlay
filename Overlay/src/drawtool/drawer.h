@@ -6,6 +6,8 @@
 #include <Windows.h>
 #include <dwmapi.h>
 #include <d3d11.h>
+
+#include <stdexcept>
 /*
 * ------ PLANNED USAGE ------
 * Drawer drawer(width, height, fps, instance, cmdShow);
@@ -35,6 +37,17 @@
 class Drawer
 {
 public:
+
+	WNDCLASSEXW windowClass{};
+	HWND window{ nullptr };
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ID3D11Device* device{ nullptr };
+	ID3D11DeviceContext* deviceContext{ nullptr };
+	IDXGISwapChain* swapChain{ nullptr };
+	ID3D11RenderTargetView* renderTargetView{ nullptr };
+	D3D_FEATURE_LEVEL level{};
+	ID3D11Texture2D* backBuffer{ nullptr };
+
 	Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow);
 	~Drawer();
 
