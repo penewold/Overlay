@@ -26,10 +26,18 @@ ImColor healthEndColor = ImColor(1.f, 0.f, 0.f);
 bool doTeamCheck = true;
 bool doHealthCheck = true;
 bool doNameEsp = true;
+int rainbowTime = 2000;
 bool doRainbowBoxEsp = true;
+bool doBoxEsp = true;
+bool doHealthEsp = true;
+
+bool running = true;
+
+bool showMenu = true;
+bool menuDebounce = true;
 
 void exitApp() {
-	PostQuitMessage(0);
+	running = false;
 }
 
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
@@ -42,15 +50,17 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
 
 	Drawer drawer(screenDim.x, screenDim.y, 60, instance, cmd_show);
-
 	memify mem("cs2.exe");
-
 	uintptr_t client = mem.GetBase("client.dll");
 
-	bool running = true;
+	
 
 	while (running) {
 		drawer.initFrame(exitApp);
+
+		if (!running) {
+			break;
+		}
 
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
@@ -100,19 +110,57 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			float width = 10000 / distanceToLocalPlayer;
 
 			ImColor rainbowColor;
-			int rainbowTime = 2000;
+			
 			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
-			drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, rainbowColor, 2.f);
 
-			ImColor healthBarColor = lerp(healthStartColor, healthEndColor, 1.f - (health / 100.f));
-			float healthbarPos = lerp(bottomScreenPos.y, topScreenPos.y, health / 100.f);
-			// xMin, yMin, xMax, yMax
-			drawer.drawBoxFilled(bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, healthBarColor, 0.f);
+			ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
-			if (!doNameEsp) continue;
-			char playerName[128];
-			mem.ReadRaw(currentController + m_iszPlayerName, playerName, sizeof(playerName));
-			drawer.drawText(playerName, bottomScreenPos.x, bottomScreenPos.y);
+			if (doBoxEsp) {
+				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, finalBoxColor, 2.f);
+			}
+			
+
+			if (doHealthEsp) {
+				ImColor healthBarColor = lerp(healthStartColor, healthEndColor, 1.f - (health / 100.f));
+				float healthbarPos = lerp(bottomScreenPos.y, topScreenPos.y, health / 100.f);
+				// xMin, yMin, xMax, yMax
+				drawer.drawBoxFilled(bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, healthBarColor, 0.f);
+			}
+
+			if (doNameEsp) {
+				char playerName[128];
+				mem.ReadRaw(currentController + m_iszPlayerName, playerName, sizeof(playerName));
+				drawer.drawTextCentered(playerName, bottomScreenPos.x, bottomScreenPos.y + 3.f);
+			}
+		}
+
+		if (showMenu) {
+			drawer.setWindowClickable(true);
+			ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
+			ImGui::Begin("Overlay Menu", &showMenu);
+			ImGui::Text("Esp Checks");
+			ImGui::Checkbox("Team Check", &doTeamCheck);
+			ImGui::Checkbox("Health Check", &doHealthCheck);
+
+			ImGui::Text("Esp");
+			ImGui::Checkbox("Box ESP", &doBoxEsp);
+			ImGui::Checkbox("Health ESP", &doHealthEsp);
+			ImGui::Checkbox("Name ESP", &doNameEsp);
+			ImGui::Checkbox("Rainbow Box ESP", &doRainbowBoxEsp);
+			ImGui::End();
+		}
+		else {
+			drawer.setWindowClickable(false);
+		}
+
+		if (GetKeyState(VK_F8) & 0x8000) {
+			if (!menuDebounce) {
+				menuDebounce = true;
+				showMenu = !showMenu;
+			}
+		}
+		else {
+			menuDebounce = false;
 		}
 	
 		drawer.drawFrame();

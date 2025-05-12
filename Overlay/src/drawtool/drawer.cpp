@@ -252,3 +252,13 @@ DXGI_SWAP_CHAIN_DESC Drawer::makeSwapChainDesc(HWND window, UINT targetfps) {
 
 	return sd;
 }
+
+void Drawer::setWindowClickable(bool clickable) {
+	LONG exStyle = GetWindowLong(window, GWL_EXSTYLE);
+	if (clickable) {
+		SetWindowLong(window, GWL_EXSTYLE, exStyle & ~WS_EX_TRANSPARENT);
+	}
+	else {
+		SetWindowLong(window, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT);
+	}
+}

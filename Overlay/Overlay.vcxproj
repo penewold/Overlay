@@ -149,7 +149,6 @@
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\drawtool\drawer.cpp" />
-    <ClCompile Include="src\drawUtils.cpp" />
     <ClCompile Include="src\logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtils.cpp" />
@@ -185,7 +184,6 @@
     <ClInclude Include="external\offsets\vphysics2_dll.hpp" />
     <ClInclude Include="external\offsets\worldrenderer_dll.hpp" />
     <ClInclude Include="src\drawtool\drawer.h" />
-    <ClInclude Include="src\drawUtils.h" />
     <ClInclude Include="src\logger.h" />
     <ClInclude Include="src\mathUtils.h" />
     <ClInclude Include="src\offsets.h" />
