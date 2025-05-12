@@ -19,7 +19,7 @@
 Vector2 screenDim(0, 0);
 
 // Settings:
-ImColor boxColor = ImColor(1.f, 0.1f, 0.1f);
+ImColor boxColor = ImColor(1.f, 1.f, 1.f);
 ImColor healthStartColor = ImColor(0.f, 1.f, 0.f);
 ImColor healthEndColor = ImColor(1.f, 0.f, 0.f);
 
@@ -66,6 +66,12 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
 		uintptr_t listEntry = mem.Read<uintptr_t>(entityList + 0x10);
 
+		ImColor rainbowColor;
+
+		rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
+
+		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
+
 		for (int i = 0; i < 64; i++) {
 			uintptr_t currentController = mem.Read<uintptr_t>(listEntry + i * 0x78);
 
@@ -109,11 +115,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
 			float width = 10000 / distanceToLocalPlayer;
 
-			ImColor rainbowColor;
 			
-			rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
-
-			ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
 			if (doBoxEsp) {
 				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, finalBoxColor, 2.f);
@@ -144,9 +146,23 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			ImGui::Text("Esp");
 			ImGui::Checkbox("Box ESP", &doBoxEsp);
+			if (doBoxEsp) {
+				ImGui::Indent(20.f);
+				ImGui::Checkbox("Rainbow Box ESP", &doRainbowBoxEsp);
+				ImGui::ColorButton("##colorbox", finalBoxColor, 0, ImVec2(20, 20));
+
+				if (!doRainbowBoxEsp) {
+					ImGui::ColorPicker3("Box Color", (float*)&boxColor);
+				}
+				else {
+					ImGui::DragInt("Rainbow Time", &rainbowTime, 20.f, 100, 10000, "Time: %d ms");
+				}
+				ImGui::Unindent(20.f);
+				
+			}
+			
 			ImGui::Checkbox("Health ESP", &doHealthEsp);
 			ImGui::Checkbox("Name ESP", &doNameEsp);
-			ImGui::Checkbox("Rainbow Box ESP", &doRainbowBoxEsp);
 			ImGui::End();
 		}
 		else {
