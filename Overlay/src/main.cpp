@@ -27,14 +27,18 @@ bool doTeamCheck = true;
 bool doHealthCheck = true;
 bool doNameEsp = true;
 int rainbowTime = 2000;
-bool doRainbowBoxEsp = true;
+bool doRainbowBoxEsp = false;
 bool doBoxEsp = true;
+float boxRounding = 0.f;
+float boxThickness = 1.f;
 bool doHealthEsp = true;
 
 bool running = true;
 
-bool showMenu = true;
+bool showMenu = false;
 bool menuDebounce = true;
+
+HWND previousWindow = nullptr;
 
 void exitApp() {
 	running = false;
@@ -118,7 +122,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			
 
 			if (doBoxEsp) {
-				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, finalBoxColor, 2.f);
+				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, finalBoxColor, boxRounding, boxThickness);
 			}
 			
 
@@ -137,7 +141,6 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		}
 
 		if (showMenu) {
-			drawer.setWindowClickable(true);
 			ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Overlay Menu", &showMenu);
 			ImGui::Text("Esp Checks");
@@ -148,11 +151,16 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			ImGui::Checkbox("Box ESP", &doBoxEsp);
 			if (doBoxEsp) {
 				ImGui::Indent(20.f);
+				ImGui::DragFloat("rounding", &boxRounding, 0.1f, 0.f, 10.f);
+				ImGui::DragFloat("thickness", &boxThickness, 0.1f, 1.f, 10.f);
 				ImGui::Checkbox("Rainbow Box ESP", &doRainbowBoxEsp);
 				ImGui::ColorButton("##colorbox", finalBoxColor, 0, ImVec2(20, 20));
 
 				if (!doRainbowBoxEsp) {
-					ImGui::ColorPicker3("Box Color", (float*)&boxColor);
+					ImGui::ColorPicker3("Box Color", (float*)&boxColor,
+						ImGuiColorEditFlags_NoSidePreview |
+						ImGuiColorEditFlags_NoInputs |
+						ImGuiColorEditFlags_NoLabel);
 				}
 				else {
 					ImGui::DragInt("Rainbow Time", &rainbowTime, 20.f, 100, 10000, "Time: %d ms");
@@ -171,8 +179,13 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		if (GetKeyState(VK_F8) & 0x8000) {
 			if (!menuDebounce) {
+				drawer.setWindowClickable(true);
+				focusWindow(drawer.window);
 				menuDebounce = true;
 				showMenu = !showMenu;
+			}
+			else {
+				focusWindow(mem.hwnd);
 			}
 		}
 		else {

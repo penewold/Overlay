@@ -37,6 +37,8 @@
 class Drawer
 {
 public:
+	HWND window{ nullptr };
+
 	Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow);
 	~Drawer();
 
@@ -44,7 +46,7 @@ public:
 	void initFrame(void (*quitFunction)());
 	void drawFrame();
 
-	void drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color = ImColor(1.f, 1.f, 1.f), float rounding = 0);
+	void drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding = 0.f, float thickness = 1.f);
 	void drawBoxFilled(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color = ImColor(1.f, 1.f, 1.f), float rounding = 0);
 	void drawLine(float xStart, float yStart, float xEnd, float yEnd, ImColor color = ImColor(1.f, 1.f, 1.f), float thickness = 1);
 	void drawCircle(float xCenter, float yCenter, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));
@@ -57,7 +59,6 @@ public:
 
 private:
 	WNDCLASSEXW windowClass{};
-	HWND window{ nullptr };
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ID3D11Device* device{ nullptr };
 	ID3D11DeviceContext* deviceContext{ nullptr };
@@ -74,3 +75,4 @@ private:
 	DXGI_SWAP_CHAIN_DESC makeSwapChainDesc(HWND window, UINT targetfps);
 };
 
+void focusWindow(HWND hwnd);

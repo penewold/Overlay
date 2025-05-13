@@ -129,12 +129,14 @@ void Drawer::drawFrame() {
 	swapChain->Present(1U, 0U); // set 1st arg to 0 to turn off vsync
 }
 
-void Drawer::drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding) {
+void Drawer::drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding, float thickness) {
 	backgroundDrawList->AddRect(
 		ImVec2(xMinimum, yMinimum),
 		ImVec2(xMaximum, yMaximum),
 		color,
-		rounding
+		rounding,
+		0,
+		thickness
 	);
 }
 
@@ -261,4 +263,17 @@ void Drawer::setWindowClickable(bool clickable) {
 	else {
 		SetWindowLong(window, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT);
 	}
+}
+
+
+void focusWindow(HWND hwnd) {
+	// Check if window is minimized; restore if needed
+	if (IsIconic(hwnd)) {
+		ShowWindow(hwnd, SW_RESTORE);
+	}
+
+	// Bring window to the foreground
+	SetForegroundWindow(hwnd);
+	SetFocus(hwnd);
+	SetActiveWindow(hwnd);
 }

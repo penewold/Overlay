@@ -19,6 +19,21 @@ Besides that, enjoy!
 typedef NTSTATUS(WINAPI* pNtReadVirtualMemory)(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, ULONG NumberOfBytesToRead, PULONG NumberOfBytesRead);
 typedef NTSTATUS(WINAPI* pNtWriteVirtualMemory)(HANDLE Processhandle, PVOID BaseAddress, PVOID Buffer, ULONG NumberOfBytesToWrite, PULONG NumberOfBytesWritten);
 
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+	DWORD targetPid = *(DWORD*)lParam;
+	DWORD windowPid = 0;
+	GetWindowThreadProcessId(hwnd, &windowPid);
+
+	// Check if window belongs to the PID and is a top-level, visible window
+	if (windowPid == targetPid && IsWindowVisible(hwnd)) {
+		// Store the HWND and stop enumeration
+		*(HWND*)lParam = hwnd;
+		return FALSE; // Stop enumeration
+	}
+
+	return TRUE; // Continue enumeration
+}
+
 class memify
 {
 private:
@@ -39,6 +54,8 @@ private:
 
 		return narrowStr;
 	}
+
+	
 
 
 	uintptr_t GetProcessId(std::string_view processName)
@@ -88,6 +105,8 @@ private:
 		return 0;
 	}
 public:
+	HWND hwnd = 0; // handle to the window, if you want to use it for something.
+
 	// if you have an array of possible process names you want to loop through, and if one matches it will grab the handle for that.
 	// this could be used if for example working with a mod that uses the base game for its gameplay, or a game that you usually play on multiple versions on.
 	// keep in mind, this can get annoying with offsets VERY fast.
@@ -110,6 +129,10 @@ public:
 			}
 			continue;
 		}
+
+		// Use EnumWindows to iterate all top-level windows
+		EnumWindows(EnumWindowsProc, (LPARAM)&processID);
+		hwnd = (HWND)processID;
 	}
 
 	// constructor opens handle and you save one line!!!! (will make your spaghetti code 10x better)
@@ -127,6 +150,10 @@ public:
 				printf("[>>] Failed to open handle to process.");
 			}
 		}
+
+		// Use EnumWindows to iterate all top-level windows
+		EnumWindows(EnumWindowsProc, (LPARAM)&processID);
+		hwnd = (HWND)processID;
 	}
 
 	// deconstructor, called automatically when closing.
