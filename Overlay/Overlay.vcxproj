@@ -189,6 +189,9 @@
     <ClInclude Include="src\offsets.h" />
     <ClInclude Include="src\structs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="external\offsets\updateoffsets.py" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
