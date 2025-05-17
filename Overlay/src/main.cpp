@@ -70,9 +70,12 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
 		uintptr_t listEntry = mem.Read<uintptr_t>(entityList + 0x10);
 
-		ImColor rainbowColor;
+		uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
+		uintptr_t localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
+		Vector3 localPlayerPos = mem.Read<Vector3>(localPlayerGameSceneNode + m_vecAbsOrigin);
+		uint8_t localPlayerTeamNum = mem.Read<uint8_t>(localPlayerPawn + m_iTeamNum);
 
-		rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
+		ImColor rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 
 		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
@@ -101,25 +104,18 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentPawn + m_pGameSceneNode);
 			int32_t health = mem.Read<uintptr_t>(currentPawn + m_iHealth);
 			uint8_t teamNum = mem.Read<uint8_t>(currentPawn + m_iTeamNum);
-			CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
-
-			uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
-			uintptr_t localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
-			Vector3 localPlayerPos = mem.Read<Vector3>(localPlayerGameSceneNode + m_vecAbsOrigin);
-			uint8_t localPlayerTeamNum = mem.Read<uint8_t>(localPlayerPawn + m_iTeamNum);
+			//CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
 			
 			if (localPlayerPawn == currentPawn) continue;
 			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
 			if (health == 0 && doHealthCheck) continue;
-			// Make a box around the player
+
 			Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
 			Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
 			Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
 			Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
 			float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
 			float width = 10000 / distanceToLocalPlayer;
-
-			
 
 			if (doBoxEsp) {
 				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, finalBoxColor, boxRounding, boxThickness);
