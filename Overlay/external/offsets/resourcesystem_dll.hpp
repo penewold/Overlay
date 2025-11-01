@@ -1,5 +1,5 @@
 // Generated using https://github.com/a2x/cs2-dumper
-// 2025-05-23 00:22:21.575826800 UTC
+// 2025-10-30 00:26:21.405923900 UTC
 
 #pragma once
 
@@ -57,13 +57,6 @@ namespace cs2_dumper {
             // Metadata:
             // MResourceTypeForInfoType
             namespace InfoForResourceTypeCMorphSetData {
-            }
-            // Parent: None
-            // Field count: 0
-            //
-            // Metadata:
-            // MResourceTypeForInfoType
-            namespace InfoForResourceTypeCChoreoSceneFileData {
             }
             // Parent: None
             // Field count: 0
@@ -156,14 +149,6 @@ namespace cs2_dumper {
             namespace InfoForResourceTypeCVoxelVisibility {
             }
             // Parent: None
-            // Field count: 1
-            //
-            // Metadata:
-            // MGetKV3ClassDefaults
-            namespace TestResource_t {
-                constexpr std::ptrdiff_t m_name = 0x0; // CUtlString
-            }
-            // Parent: None
             // Field count: 0
             //
             // Metadata:
@@ -190,6 +175,13 @@ namespace cs2_dumper {
             // Metadata:
             // MResourceTypeForInfoType
             namespace InfoForResourceTypeProceduralTestResource_t {
+            }
+            // Parent: None
+            // Field count: 0
+            //
+            // Metadata:
+            // MResourceTypeForInfoType
+            namespace InfoForResourceTypeCChoreoSceneFileList {
             }
             // Parent: None
             // Field count: 2
@@ -251,6 +243,13 @@ namespace cs2_dumper {
             //
             // Metadata:
             // MResourceTypeForInfoType
+            namespace InfoForResourceTypeCChoreoSceneResource {
+            }
+            // Parent: None
+            // Field count: 0
+            //
+            // Metadata:
+            // MResourceTypeForInfoType
             namespace InfoForResourceTypeCNmSkeleton {
             }
             // Parent: None
@@ -258,7 +257,7 @@ namespace cs2_dumper {
             //
             // Metadata:
             // MResourceTypeForInfoType
-            namespace InfoForResourceTypeTestResource_t {
+            namespace InfoForResourceTypeCTestResourceData {
             }
             // Parent: None
             // Field count: 0
@@ -300,7 +299,7 @@ namespace cs2_dumper {
             //
             // Metadata:
             // MResourceTypeForInfoType
-            namespace InfoForResourceTypeCNmGraphVariation {
+            namespace InfoForResourceTypeCSurfaceGraph {
             }
             // Parent: None
             // Field count: 0

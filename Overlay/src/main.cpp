@@ -80,7 +80,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
 		for (int i = 0; i < 64; i++) {
-			uintptr_t currentController = mem.Read<uintptr_t>(listEntry + i * 0x78);
+			uintptr_t currentController = mem.Read<uintptr_t>(listEntry + i * 0x70);
 
 			if (currentController == 0) {
 				continue;
@@ -94,7 +94,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			uintptr_t listEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((pawnhandle & 0x7FFF) >> 9) + 0x10);
 
-			uintptr_t currentPawn = mem.Read<uintptr_t>(listEntry2 + 0x78 * (pawnhandle & 0x1FF));
+			uintptr_t currentPawn = mem.Read<uintptr_t>(listEntry2 + 0x70 * (pawnhandle & 0x1FF));
 			
 			if (currentPawn == 0) {
 				continue;

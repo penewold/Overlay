@@ -1,5 +1,5 @@
 // Generated using https://github.com/a2x/cs2-dumper
-// 2025-05-23 00:22:21.575826800 UTC
+// 2025-10-30 00:26:21.405923900 UTC
 
 #pragma once
 
@@ -9,8 +9,18 @@ namespace cs2_dumper {
     namespace schemas {
         // Module: scenesystem.dll
         // Class count: 9
-        // Enum count: 1
+        // Enum count: 3
         namespace scenesystem_dll {
+            // Alignment: 1
+            // Member count: 6
+            enum class DecalMode_t : uint8_t {
+                kDecalInvalid = 0xFF,
+                kDecalBlood = 0x0,
+                kDecalCloak = 0x1,
+                kDecalCloakDamage = 0x2,
+                kDecalMax = 0x3,
+                kDecalDefault = 0x0
+            };
             // Alignment: 1
             // Member count: 4
             enum class DisableShadows_t : uint8_t {
@@ -18,6 +28,16 @@ namespace cs2_dumper {
                 kDisableShadows_All = 0x1,
                 kDisableShadows_Baked = 0x2,
                 kDisableShadows_Realtime = 0x3
+            };
+            // Alignment: 4
+            // Member count: 6
+            enum class ESceneObjectVisualization : uint32_t {
+                SCENEOBJECT_VIS_NONE = 0x0,
+                SCENEOBJECT_VIS_OBJECT = 0x1,
+                SCENEOBJECT_VIS_MATERIAL = 0x2,
+                SCENEOBJECT_VIS_TEXTURE_SIZE = 0x3,
+                SCENEOBJECT_VIS_LOD = 0x4,
+                SCENEOBJECT_VIS_INSTANCING = 0x5
             };
             // Parent: None
             // Field count: 10
@@ -54,7 +74,7 @@ namespace cs2_dumper {
                 constexpr std::ptrdiff_t m_nViewId = 0x0; // uint64
                 constexpr std::ptrdiff_t m_ViewName = 0x8; // CUtlString
             }
-            // Parent: CSSDSMsg_LayerBase
+            // Parent: None
             // Field count: 0
             //
             // Metadata:
@@ -62,19 +82,18 @@ namespace cs2_dumper {
             namespace CSSDSMsg_PostLayer {
             }
             // Parent: None
-            // Field count: 6
+            // Field count: 5
             //
             // Metadata:
             // MGetKV3ClassDefaults
             namespace CSSDSMsg_LayerBase {
                 constexpr std::ptrdiff_t m_viewId = 0x0; // SceneViewId_t
                 constexpr std::ptrdiff_t m_ViewName = 0x10; // CUtlString
-                constexpr std::ptrdiff_t m_nLayerIndex = 0x18; // int32
-                constexpr std::ptrdiff_t m_nLayerId = 0x20; // uint64
-                constexpr std::ptrdiff_t m_LayerName = 0x28; // CUtlString
-                constexpr std::ptrdiff_t m_displayText = 0x30; // CUtlString
+                constexpr std::ptrdiff_t m_nLayerId = 0x18; // uint64
+                constexpr std::ptrdiff_t m_LayerName = 0x20; // CUtlString
+                constexpr std::ptrdiff_t m_displayText = 0x28; // CUtlString
             }
-            // Parent: CSSDSMsg_LayerBase
+            // Parent: None
             // Field count: 0
             //
             // Metadata:
