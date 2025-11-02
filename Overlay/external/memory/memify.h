@@ -19,7 +19,8 @@ Besides that, enjoy!
 typedef NTSTATUS(WINAPI* pNtReadVirtualMemory)(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, ULONG NumberOfBytesToRead, PULONG NumberOfBytesRead);
 typedef NTSTATUS(WINAPI* pNtWriteVirtualMemory)(HANDLE Processhandle, PVOID BaseAddress, PVOID Buffer, ULONG NumberOfBytesToWrite, PULONG NumberOfBytesWritten);
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+
+inline BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 	DWORD targetPid = *(DWORD*)lParam;
 	DWORD windowPid = 0;
 	GetWindowThreadProcessId(hwnd, &windowPid);

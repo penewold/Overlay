@@ -152,6 +152,7 @@
     <ClCompile Include="src\logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtils.cpp" />
+    <ClCompile Include="HackUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\imconfig.h" />
@@ -188,6 +189,7 @@
     <ClInclude Include="src\mathUtils.h" />
     <ClInclude Include="src\offsets.h" />
     <ClInclude Include="src\structs.h" />
+    <ClInclude Include="HackUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="external\offsets\updateoffsets.py" />
