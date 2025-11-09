@@ -1,6 +1,6 @@
 #include "HackUtils.h"
 #include "offsets/client_dll.hpp"
-#include "src/offsets.h"
+//#include "src/offsets.h"
 
 HackUtils::HackUtils(memify& m) : mem(m) {
 	entityList = 0;
@@ -10,19 +10,19 @@ void HackUtils::setEntList(uintptr_t listLocationPtr) {
 	entityList = listLocationPtr;
 }
 
-uintptr_t HackUtils::getEnt(int id) {
-	uintptr_t ListEntry = mem.Read<uintptr_t>(entityList + (8 * (id & 0x7FFF) >> 9) + 16);
+uintptr_t HackUtils::getEntity1(int index) {
+	uintptr_t ListEntry = mem.Read<uintptr_t>(entityList + (8 * (index & 0x7FFF) >> 9) + 16);
 	if (!ListEntry) return 0;
 	
-	uintptr_t currentController = mem.Read<uintptr_t>(entityList + 0x10 + id * 0x70);
-	uintptr_t playerController = mem.Read<uintptr_t>(ListEntry + 0x70 * (id & 0x1FF)); // C_BaseEntity?
+	uintptr_t currentController = mem.Read<uintptr_t>(entityList + 0x10 + index * 0x70);
+	uintptr_t playerController = mem.Read<uintptr_t>(ListEntry + 0x70 * (index & 0x1FF)); // C_BaseEntity?
 	if (!playerController) return 0;
 
 	if (currentController == 0) {
 		return 0;
 	}
 
-	int pawnhandle = mem.Read<int>(currentController + m_hPlayerPawn);
+	int pawnhandle = mem.Read<int>(currentController /* + m_hPlayerPawn*/);
 
 	if (pawnhandle == 0) {
 		return 0;
@@ -41,31 +41,39 @@ constexpr int CHUNK_SHIFT = 9;
 
 // Offsets (CS2 - 2025)
 constexpr uintptr_t OFFSET_CHUNK_ARRAY = 0x10;  // +16 from entityList
-constexpr uintptr_t OFFSET_ENTITY_ENTRY = 0x78; // 120 decimal
+constexpr uintptr_t OFFSET_ENTITY_ENTRY = 0x70; // 112 decimal (changed in recent update)
 
 // Resolve any entity (Controller or Pawn) by index using masks
-uintptr_t HackUtils::getEntity(int index)
+uintptr_t HackUtils::getEntity2(int index)
 {
-    if (index < 0 || index > MAX_ENTITIES || !entityList)
-        return 0;
 
-    // Mask: lower 15 bits
-    uint32_t id = index & 0x7FFF;
+	// entities are stored inside buckets of 512 entities
+	// there are max 64 buckets
 
-    // Chunk index: id >> 9
-    uintptr_t chunk = mem.Read<uintptr_t>(
-        entityList + OFFSET_CHUNK_ARRAY + 8 * (id >> CHUNK_SHIFT)
-    );
-    if (!chunk)
-        return 0;
+	// ands with this: 0000 0000 0000 0000 0111 1111 1111 1111 (0x7FFF)
+	// so any number above 0x7FFF (32767) is just modulo to below
+	// then it's shifted right 9 times. For example for 1067:
+	// 0000 0100 0010 1011 becomes 0000 0000 0000 0010 so 2
+	// the int is locked to below 32768 (1 << 15) so we can ignore everything but the right most 15 bits
+	// 0000 010- ---- ---- or 000 0010 or 2
+	// for 32766
+	// 0111 1111 1111 1110
+	// 0111 111- ---- ----
+	// 63 in decimal
 
-    // Local index in chunk: id & 0x1FF
-    uintptr_t listEntry = mem.Read<uintptr_t>(
-        chunk + OFFSET_ENTITY_ENTRY * (id & 0x1FF)
-    );
-    if (!listEntry)
-        return 0;
+	uint32_t bucketIndex = (index & MAX_ENTITIES) >> 9;
 
-    // Final entity pointer (Controller or Pawn)
-    return mem.Read<uintptr_t>(listEntry + 0x10);
+	uintptr_t listEntry = mem.Read<uintptr_t>(entityList + (8 * bucketIndex) + 16);
+
+	// just look at the rightmost 9 bits for the index in the bucket
+	// for 32766
+	// 0111 1111 1111 1110
+	// do and with 0000 0001 1111 1111 (0x1FF)
+	// becomes:
+	// ---- ---1 1111 1110 (510)
+	uint32_t indexInBucket = index & 0x1FF;
+	// 112 (0x70) is the size of each entity. Was 120 (0x78) some time ago
+	uintptr_t entityAddress = listEntry + 112 * indexInBucket;
+	return mem.Read<uintptr_t>(entityAddress);
+
 }

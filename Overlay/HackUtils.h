@@ -10,7 +10,7 @@ public:
 	HackUtils(memify& m);
 
 	void setEntList(uintptr_t listLocationPtr);
-	uintptr_t getEnt(int id);
-	uintptr_t getEntity(int index);
+	uintptr_t getEntity1(int index);
+	uintptr_t getEntity2(int index);
 };
 
