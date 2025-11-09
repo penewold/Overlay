@@ -15,6 +15,7 @@
 #include "mathUtils.h"
 #include "logger.h"
 #include "drawtool/drawer.h"
+#include "HackUtils.h"
 
 Vector2 screenDim(0, 0);
 
@@ -57,7 +58,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	memify mem("cs2.exe");
 	uintptr_t client = mem.GetBase("client.dll");
 
-	
+	HackUtils hack(mem);
 
 	while (running) {
 		drawer.initFrame(exitApp);
@@ -68,6 +69,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
+		hack.setEntList(entityList);
 		uintptr_t listEntry = mem.Read<uintptr_t>(entityList + 0x10);
 
 		uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
@@ -80,33 +82,27 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
 		for (int i = 0; i < 64; i++) {
-			uintptr_t currentController = mem.Read<uintptr_t>(listEntry + i * 0x70);
-
-			if (currentController == 0) {
+			uintptr_t playerController = hack.getEntity2(i);
+			if (!playerController)
 				continue;
-			}
-			
-			int pawnhandle = mem.Read<int>(currentController + m_hPlayerPawn);
 
-			if (pawnhandle == 0) {
+			// Step 2: Read the pawn handle (m_hPlayerPawn)
+			int pawnHandle = mem.Read<int>(playerController + m_hPlayerPawn);
+			if (pawnHandle <= 0)  // 0 or negative = invalid
 				continue;
-			}
 
-			uintptr_t listEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((pawnhandle & 0x7FFF) >> 9) + 0x10);
-
-			uintptr_t currentPawn = mem.Read<uintptr_t>(listEntry2 + 0x70 * (pawnhandle & 0x1FF));
-			
-			if (currentPawn == 0) {
+			// Step 3: Get Player Pawn using the handle as entity index
+			uintptr_t playerPawn = hack.getEntity2(pawnHandle & 0x7FFF);  // mask to get valid index
+			if (!playerPawn)
 				continue;
-			}
 
 			// you can get the gamescenenode earlier without getting the playerpawn because the controller has the pointer to gamescenenode too
-			uintptr_t gameSceneNode = mem.Read<uintptr_t>(currentPawn + m_pGameSceneNode);
-			int32_t health = mem.Read<uintptr_t>(currentPawn + m_iHealth);
-			uint8_t teamNum = mem.Read<uint8_t>(currentPawn + m_iTeamNum);
+			uintptr_t gameSceneNode = mem.Read<uintptr_t>(playerPawn + m_pGameSceneNode);
+			int32_t health = mem.Read<uintptr_t>(playerPawn + m_iHealth);
+			uint8_t teamNum = mem.Read<uint8_t>(playerPawn + m_iTeamNum);
 			//CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
 			
-			if (localPlayerPawn == currentPawn) continue;
+			if (localPlayerPawn == playerPawn) continue;
 			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
 			if (health == 0 && doHealthCheck) continue;
 
@@ -131,7 +127,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			if (doNameEsp) {
 				char playerName[128];
-				mem.ReadRaw(currentController + m_iszPlayerName, playerName, sizeof(playerName));
+				mem.ReadRaw(playerController + m_iszPlayerName, playerName, sizeof(playerName));
 				drawer.drawTextCentered(playerName, bottomScreenPos.x, bottomScreenPos.y + 3.f);
 			}
 		}

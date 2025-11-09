@@ -29,7 +29,7 @@ uintptr_t HackUtils::getEntity1(int index) {
 	}
 
 	uintptr_t listEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((pawnhandle & 0x7FFF) >> 9) + 0x10);
-	
+	return 0;
 }
 
 // Max entity index: 0x7FFF (32767)
