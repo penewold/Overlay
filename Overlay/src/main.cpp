@@ -8,6 +8,8 @@
 
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <thread>
 
 #include <memory/memify.h>
 #include "offsets.h"
@@ -16,6 +18,7 @@
 #include "logger.h"
 #include "drawtool/drawer.h"
 #include "HackUtils.h"
+#include "tui.h"
 
 Vector2 screenDim(0, 0);
 
@@ -39,16 +42,21 @@ bool running = true;
 bool showMenu = false;
 bool menuDebounce = true;
 
+uintptr_t cachedEntityList[1024];
+
 HWND previousWindow = nullptr;
 
 void exitApp() {
 	running = false;
 }
 
+
+
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 	#ifdef _DEBUG
 	initLogger();
+	enableAnsi();
 	#endif
 
 	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
@@ -58,9 +66,15 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	memify mem("cs2.exe");
 	uintptr_t client = mem.GetBase("client.dll");
 
+	
+
 	HackUtils hack(mem);
 
+	uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
+	hack.setEntList(entityList);
+
 	while (running) {
+		tui::resetScreen();
 		drawer.initFrame(exitApp);
 
 		if (!running) {
@@ -68,9 +82,17 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		}
 
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
-		uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
-		hack.setEntList(entityList);
-		uintptr_t listEntry = mem.Read<uintptr_t>(entityList + 0x10);
+		
+		int entlistData1 = mem.Read<int>(entityList);
+		int entlistData2 = mem.Read<int>(entityList + sizeof(int) * 1);
+		int entlistData3 = mem.Read<int>(entityList + sizeof(int) * 2);
+		int entlistData4 = mem.Read<int>(entityList + sizeof(int) * 3);
+
+		std::cout << "entitylist ptr  : " << tui::bold << entityList << tui::reset << "\n";
+		std::cout << "entitylist data1: " << tui::bold << entlistData1 << tui::reset << "\n";
+		std::cout << "entitylist data2: " << tui::bold << entlistData2 << tui::reset << "\n";
+		std::cout << "entitylist data3: " << tui::bold << entlistData3 << tui::reset << "\n";
+		std::cout << "entitylist data4: " << tui::bold << entlistData4 << tui::reset << "\n";
 
 		uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
 		uintptr_t localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
@@ -81,18 +103,23 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
-		for (int i = 0; i < 64; i++) {
-			uintptr_t playerController = hack.getEntity2(i);
-			if (!playerController)
+		int entcount1 = 0;
+
+		for (int i = 0; i < 1024; i++) {
+			uintptr_t currentEntity = hack.getEntity(i);
+			if (!currentEntity)
 				continue;
 
+			entcount1++;
+			
+
 			// Step 2: Read the pawn handle (m_hPlayerPawn)
-			int pawnHandle = mem.Read<int>(playerController + m_hPlayerPawn);
+			int pawnHandle = mem.Read<int>(currentEntity + m_hPlayerPawn);
 			if (pawnHandle <= 0)  // 0 or negative = invalid
 				continue;
 
 			// Step 3: Get Player Pawn using the handle as entity index
-			uintptr_t playerPawn = hack.getEntity2(pawnHandle & 0x7FFF);  // mask to get valid index
+			uintptr_t playerPawn = hack.getEntity(pawnHandle & 0x7FFF);  // mask to get valid index
 			if (!playerPawn)
 				continue;
 
@@ -127,11 +154,12 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			if (doNameEsp) {
 				char playerName[128];
-				mem.ReadRaw(playerController + m_iszPlayerName, playerName, sizeof(playerName));
+				mem.ReadRaw(currentEntity + m_iszPlayerName, playerName, sizeof(playerName));
 				drawer.drawTextCentered(playerName, bottomScreenPos.x, bottomScreenPos.y + 3.f);
 			}
 		}
 
+		std::cout << "ent count: " << tui::bold << entcount1 << "\n";
 		if (showMenu) {
 			ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Overlay Menu", &showMenu);
@@ -185,6 +213,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		}
 	
 		drawer.drawFrame();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	return 0;
 }

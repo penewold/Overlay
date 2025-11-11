@@ -18,3 +18,4 @@ std::ptrdiff_t m_bLeftHanded = cs2_dumper::schemas::client_dll::C_CSPlayerPawn::
 std::ptrdiff_t dwLocalPlayerController = cs2_dumper::offsets::client_dll::dwLocalPlayerController;
 std::ptrdiff_t dwLocalPlayerPawn = cs2_dumper::offsets::client_dll::dwLocalPlayerPawn;
 std::ptrdiff_t m_iszPlayerName = cs2_dumper::schemas::client_dll::CBasePlayerController::m_iszPlayerName;
+std::ptrdiff_t dwGlobalVars = cs2_dumper::offsets::client_dll::dwGlobalVars;

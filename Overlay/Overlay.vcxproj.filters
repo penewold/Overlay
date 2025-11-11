@@ -158,6 +158,9 @@
     <ClInclude Include="src\HackUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\offsets\updateoffsets.py" />

@@ -10,28 +10,6 @@ void HackUtils::setEntList(uintptr_t listLocationPtr) {
 	entityList = listLocationPtr;
 }
 
-uintptr_t HackUtils::getEntity1(int index) {
-	uintptr_t ListEntry = mem.Read<uintptr_t>(entityList + (8 * (index & 0x7FFF) >> 9) + 16);
-	if (!ListEntry) return 0;
-	
-	uintptr_t currentController = mem.Read<uintptr_t>(entityList + 0x10 + index * 0x70);
-	uintptr_t playerController = mem.Read<uintptr_t>(ListEntry + 0x70 * (index & 0x1FF)); // C_BaseEntity?
-	if (!playerController) return 0;
-
-	if (currentController == 0) {
-		return 0;
-	}
-
-	int pawnhandle = mem.Read<int>(currentController /* + m_hPlayerPawn*/);
-
-	if (pawnhandle == 0) {
-		return 0;
-	}
-
-	uintptr_t listEntry2 = mem.Read<uintptr_t>(entityList + 0x8 * ((pawnhandle & 0x7FFF) >> 9) + 0x10);
-	return 0;
-}
-
 // Max entity index: 0x7FFF (32767)
 constexpr uint32_t MAX_ENTITIES = 0x7FFF;
 
@@ -44,7 +22,7 @@ constexpr uintptr_t OFFSET_CHUNK_ARRAY = 0x10;  // +16 from entityList
 constexpr uintptr_t OFFSET_ENTITY_ENTRY = 0x70; // 112 decimal (changed in recent update)
 
 // Resolve any entity (Controller or Pawn) by index using masks
-uintptr_t HackUtils::getEntity2(int index)
+uintptr_t HackUtils::getEntity(int index)
 {
 
 	// entities are stored inside buckets of 512 entities
@@ -55,7 +33,7 @@ uintptr_t HackUtils::getEntity2(int index)
 	// then it's shifted right 9 times. For example for 1067:
 	// 0000 0100 0010 1011 becomes 0000 0000 0000 0010 so 2
 	// the int is locked to below 32768 (1 << 15) so we can ignore everything but the right most 15 bits
-	// 0000 010- ---- ---- or 000 0010 or 2
+	// 0000 010> >>>> >>>> or 000 0010 or 2
 	// for 32766
 	// 0111 1111 1111 1110
 	// 0111 111- ---- ----
@@ -76,4 +54,10 @@ uintptr_t HackUtils::getEntity2(int index)
 	uintptr_t entityAddress = listEntry + 112 * indexInBucket;
 	return mem.Read<uintptr_t>(entityAddress);
 
+}
+
+void HackUtils::fillEntityCache(uintptr_t list[], size_t size) {
+	for (int index = 0; index < size; index++) {
+		list[index] = getEntity(index);
+	}
 }

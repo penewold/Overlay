@@ -190,6 +190,7 @@
     <ClInclude Include="src\offsets.h" />
     <ClInclude Include="src\structs.h" />
     <ClInclude Include="src\HackUtils.h" />
+    <ClInclude Include="src\tui.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="external\offsets\updateoffsets.py" />
