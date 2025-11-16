@@ -19,7 +19,7 @@ constexpr int CHUNK_SHIFT = 9;
 
 // Offsets (CS2 - 2025)
 constexpr uintptr_t OFFSET_CHUNK_ARRAY = 0x10;  // +16 from entityList
-constexpr uintptr_t OFFSET_ENTITY_ENTRY = 0x70; // 112 decimal (changed in recent update)
+constexpr uintptr_t ENTITY_OFFSET = 0x70; // 112 decimal (changed in recent update)
 
 // Resolve any entity (Controller or Pawn) by index using masks
 uintptr_t HackUtils::getEntity(int index)
@@ -51,7 +51,7 @@ uintptr_t HackUtils::getEntity(int index)
 	// ---- ---1 1111 1110 (510)
 	uint32_t indexInBucket = index & 0x1FF;
 	// 112 (0x70) is the size of each entity. Was 120 (0x78) some time ago
-	uintptr_t entityAddress = listEntry + 112 * indexInBucket;
+	uintptr_t entityAddress = listEntry + ENTITY_OFFSET * indexInBucket;
 	return mem.Read<uintptr_t>(entityAddress);
 
 }

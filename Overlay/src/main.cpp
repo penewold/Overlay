@@ -73,26 +73,28 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
 	hack.setEntList(entityList);
 
+	uint64_t currentTime = GetTickCount64();
+
+	uint64_t lastEntityCacheTime = currentTime;
+
 	while (running) {
-		tui::resetScreen();
-		drawer.initFrame(exitApp);
+		
 
 		if (!running) {
 			break;
 		}
 
+		tui::resetScreen();
+		drawer.initFrame(exitApp);
+		currentTime = GetTickCount64();
+
+		if ((currentTime - lastEntityCacheTime) > 2500) {
+			lastEntityCacheTime = currentTime;
+			hack.fillEntityCache(cachedEntityList, 1024);
+		}
+
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		
-		int entlistData1 = mem.Read<int>(entityList);
-		int entlistData2 = mem.Read<int>(entityList + sizeof(int) * 1);
-		int entlistData3 = mem.Read<int>(entityList + sizeof(int) * 2);
-		int entlistData4 = mem.Read<int>(entityList + sizeof(int) * 3);
-
-		std::cout << "entitylist ptr  : " << tui::bold << entityList << tui::reset << "\n";
-		std::cout << "entitylist data1: " << tui::bold << entlistData1 << tui::reset << "\n";
-		std::cout << "entitylist data2: " << tui::bold << entlistData2 << tui::reset << "\n";
-		std::cout << "entitylist data3: " << tui::bold << entlistData3 << tui::reset << "\n";
-		std::cout << "entitylist data4: " << tui::bold << entlistData4 << tui::reset << "\n";
 
 		uintptr_t localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
 		uintptr_t localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
@@ -106,7 +108,9 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		int entcount1 = 0;
 
 		for (int i = 0; i < 1024; i++) {
-			uintptr_t currentEntity = hack.getEntity(i);
+			//uintptr_t currentEntity = hack.getEntity(i);
+			uintptr_t currentEntity = cachedEntityList[i];
+
 			if (!currentEntity)
 				continue;
 
@@ -114,12 +118,12 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			
 
 			// Step 2: Read the pawn handle (m_hPlayerPawn)
-			int pawnHandle = mem.Read<int>(currentEntity + m_hPlayerPawn);
+			int pawnHandle = mem.Read<int>(currentEntity + m_hPlayerPawn) & 0x7FFF;
 			if (pawnHandle <= 0)  // 0 or negative = invalid
 				continue;
 
 			// Step 3: Get Player Pawn using the handle as entity index
-			uintptr_t playerPawn = hack.getEntity(pawnHandle & 0x7FFF);  // mask to get valid index
+			uintptr_t playerPawn = cachedEntityList[pawnHandle];
 			if (!playerPawn)
 				continue;
 
