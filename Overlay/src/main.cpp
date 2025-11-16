@@ -116,8 +116,11 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			entcount1++;
 			
+			uintptr_t entityGameSceneNode = mem.Read<uintptr_t>(currentEntity + m_pGameSceneNode);
+			uintptr_t entityInstace = mem.Read<uintptr_t>(entityGameSceneNode + )
 
-			// Step 2: Read the pawn handle (m_hPlayerPawn)
+			// Read the pawn handle (m_hPlayerPawn)
+			// Assume they're a player
 			int pawnHandle = mem.Read<int>(currentEntity + m_hPlayerPawn) & 0x7FFF;
 			if (pawnHandle <= 0)  // 0 or negative = invalid
 				continue;
@@ -128,7 +131,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				continue;
 
 			// you can get the gamescenenode earlier without getting the playerpawn because the controller has the pointer to gamescenenode too
-			uintptr_t gameSceneNode = mem.Read<uintptr_t>(playerPawn + m_pGameSceneNode);
+			uintptr_t pawnGameSceneNode = mem.Read<uintptr_t>(playerPawn + m_pGameSceneNode);
 			int32_t health = mem.Read<uintptr_t>(playerPawn + m_iHealth);
 			uint8_t teamNum = mem.Read<uint8_t>(playerPawn + m_iTeamNum);
 			//CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
@@ -137,7 +140,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
 			if (health == 0 && doHealthCheck) continue;
 
-			Vector3 bottomPos = mem.Read<Vector3>(gameSceneNode + m_vecAbsOrigin);
+			Vector3 bottomPos = mem.Read<Vector3>(pawnGameSceneNode + m_vecAbsOrigin);
 			Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
 			Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
 			Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
