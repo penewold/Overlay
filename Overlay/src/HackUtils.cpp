@@ -44,7 +44,7 @@ uintptr_t HackUtils::getEntity(int index)
 	// pointer to the start of the bucket without the 16 bits that hold unknown data. vtable or smthn
 	// each pointer to a bucket is 8 bits so thats why we * 8
 	// 
-	uintptr_t listEntry = mem.Read<uintptr_t>(entityList + (8 * bucketIndex) + 16);
+	uintptr_t bucketPointer = mem.Read<uintptr_t>(entityList + (8 * bucketIndex) + 16);
 
 	// just look at the rightmost 9 bits for the index in the bucket
 	// for 32766
@@ -55,7 +55,7 @@ uintptr_t HackUtils::getEntity(int index)
 	// index is the 9 rightmost bits
 	uint32_t indexInBucket = index & 0x1FF;
 	// 112 (0x70) is the size of each entity. Was 120 (0x78) some time ago
-	uintptr_t entityAddress = listEntry + ENTITY_OFFSET * indexInBucket;
+	uintptr_t entityAddress = bucketPointer + ENTITY_OFFSET * indexInBucket;
 	return mem.Read<uintptr_t>(entityAddress);
 
 }
