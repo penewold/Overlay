@@ -153,6 +153,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtils.cpp" />
     <ClCompile Include="src\HackUtils.cpp" />
+    <ClCompile Include="src\offsets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\imconfig.h" />

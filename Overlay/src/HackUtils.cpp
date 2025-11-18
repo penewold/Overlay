@@ -1,6 +1,6 @@
 #include "HackUtils.h"
 #include "offsets/client_dll.hpp"
-//#include "src/offsets.h"
+#include "offsets.h"
 
 HackUtils::HackUtils(memify& m) : mem(m) {
 	entityList = 0;
@@ -60,4 +60,25 @@ void HackUtils::fillEntityCache(uintptr_t list[], size_t size) {
 	for (int index = 0; index < size; index++) {
 		list[index] = getEntity(index);
 	}
+}
+
+/*int HackUtils::getEntityType(uintptr_t entityPtr) {
+	uintptr_t entityGameSceneNode = mem.Read<uintptr_t>(entityPtr + m_pGameSceneNode);
+	uintptr_t entityInstance = mem.Read<uintptr_t>(entityGameSceneNode + m_pOwner);
+	if (!entityInstance) return -1;
+	uintptr_t entityIdentity = mem.Read<uintptr_t>(entityInstance + m_pEntity);
+	if (!entityIdentity) return -1;
+	int designerName = mem.Read<int>(entityIdentity + m_designerName);
+
+	return designerName;
+}*/
+
+uint8_t HackUtils::getEntityType(uintptr_t entityGameSceneNode) {
+	uintptr_t entityInstance = mem.Read<uintptr_t>(entityGameSceneNode + m_pOwner);
+	if (!entityInstance) return -1;
+	uintptr_t entityIdentity = mem.Read<uintptr_t>(entityInstance + m_pEntity);
+	if (!entityIdentity) return -1;
+	uint8_t designerName = mem.Read<int>(entityIdentity + m_designerName);
+
+	return designerName;
 }

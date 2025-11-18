@@ -191,6 +191,15 @@ void Drawer::drawTextCentered(char* text, float x, float y, ImColor color) {
 	);
 }
 
+void Drawer::drawTextCentered(const char* text, float x, float y, ImColor color) {
+	ImVec2 textSize = ImGui::CalcTextSize(text);
+	backgroundDrawList->AddText(
+		ImVec2(x - textSize.x / 2.f, y - textSize.y / 2.f),
+		color,
+		text
+	);
+}
+
 WNDCLASSEXW Drawer::makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance) {
 	WNDCLASSEXW wc{};
 	wc.cbSize = sizeof(WNDCLASSEXW);

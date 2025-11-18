@@ -53,6 +53,7 @@ public:
 	void drawCircleFilled(float xCenter, float yCenter, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));
 	void drawText(char* text, float x, float y, ImColor color = ImColor(1.f, 1.f, 1.f));
 	void drawTextCentered(char* text, float x, float y, ImColor color = ImColor(1.f, 1.f, 1.f));
+	void drawTextCentered(const char* text, float x, float y, ImColor color = ImColor(1.f, 1.f, 1.f));
 
 	void setWindowClickable(bool clickable);
 

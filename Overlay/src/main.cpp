@@ -116,8 +116,16 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			entcount1++;
 			
+			// put getEntityType here
 			uintptr_t entityGameSceneNode = mem.Read<uintptr_t>(currentEntity + m_pGameSceneNode);
-			uintptr_t entityInstace = mem.Read<uintptr_t>(entityGameSceneNode + )
+			int entityType = hack.getEntityType(entityGameSceneNode);
+
+			Vector3 entityLocation = mem.Read<Vector3>(entityGameSceneNode + m_vecAbsOrigin);
+			Vector2 entityScreenLocation = worldToScreen(entityLocation, viewMatrix, screenDim);
+
+			std::string entityTypeStr = std::to_string(entityType);
+			drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation.x + 10, entityScreenLocation.y);
+
 
 			// Read the pawn handle (m_hPlayerPawn)
 			// Assume they're a player
@@ -126,7 +134,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				continue;
 
 			// Step 3: Get Player Pawn using the handle as entity index
-			uintptr_t playerPawn = cachedEntityList[pawnHandle];
+			uintptr_t playerPawn = hack.getEntity(pawnHandle);
 			if (!playerPawn)
 				continue;
 
