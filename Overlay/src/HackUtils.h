@@ -1,5 +1,6 @@
 #pragma once
 #include "memory/memify.h"
+#include "mathUtils.h"
 class HackUtils
 {
 private: 
@@ -20,25 +21,35 @@ namespace entityTypes {
 	enum entityTypes {
 		PHYSICSPROP = 0,
 		ANIMATEDPROP = 191,
+		BOMBITEM = 47,
+		PLANTSITE = 153,
+
+	};
+
+	enum weaponItems {
+		KNIFEKNIFEITEM = 147,
+		P2000GUNITEM = 199,
+		P90GUNITEM = 148,
+		NOVAGUNITEM = 116,
+		GLOCKGUNITEM = 182,
+	};
+
+	enum grenades {
 		HEGRENADE = 231,
 		FLASHGRENADE = 70,
 		SMOKEGRENADE = 192,
 		MOLOTOVGRENADE = 206,
 		DECOYGRENADE = 170,
+	};
+
+	enum GrenadeItems {
 		HEGRENADEITEM = 210,
 		SMOKEGRENADEITEM = 168,
 		FLASHGRENADEITEM = 49,
 		MOLOTOVGRENADEITEM = 187,
 		DECOYGRENADEITEM = 153,
-		NOVAGUNITEM = 116,
-		GLOCKGUNITEM = 182,
-		KNIFEKNIFEITEM = 147,
-		BOMBITEM = 47,
-		PLANTSITE = 153,
-		P2000GUNITEM = 199,
-		P90GUNITEM = 148,
-
 	};
 
 }
+
 

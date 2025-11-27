@@ -36,6 +36,7 @@ bool doBoxEsp = true;
 float boxRounding = 0.f;
 float boxThickness = 1.f;
 bool doHealthEsp = true;
+bool doSkeletonEsp = true;
 
 bool running = true;
 
@@ -59,8 +60,8 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	enableAnsi();
 	#endif
 
-	screenDim.x = GetSystemMetrics(SM_CXSCREEN);
-	screenDim.y = GetSystemMetrics(SM_CYSCREEN);
+	screenDim.x = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
+	screenDim.y = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
 
 	Drawer drawer(screenDim.x, screenDim.y, 60, instance, cmd_show);
 	memify mem("cs2.exe");
@@ -88,10 +89,12 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		drawer.initFrame(exitApp);
 		currentTime = GetTickCount64();
 
-		if ((currentTime - lastEntityCacheTime) > 2500) {
+		if ((currentTime - lastEntityCacheTime) > 1000) {
 			lastEntityCacheTime = currentTime;
-			hack.fillEntityCache(cachedEntityList, 1024);
+			hack.fillEntityCache(cachedEntityList, 64);
 		}
+
+		std::cout << mem.Read<uint16_t>(client + dwEntitySystem_highestEntityIndex) << std::endl;
 
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
 		
@@ -101,13 +104,13 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		Vector3 localPlayerPos = mem.Read<Vector3>(localPlayerGameSceneNode + m_vecAbsOrigin);
 		uint8_t localPlayerTeamNum = mem.Read<uint8_t>(localPlayerPawn + m_iTeamNum);
 
-		ImColor rainbowColor = rainbowColor.HSV((GetTickCount() % rainbowTime) / (float)rainbowTime, .8f, .9f);
+		ImColor rainbowColor = rainbowColor.HSV((GetTickCount64() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 
 		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
 
 		int entcount1 = 0;
 
-		for (int i = 0; i < 1024; i++) {
+		for (int i = 0; i < 64; i++) {
 			//uintptr_t currentEntity = hack.getEntity(i);
 			uintptr_t currentEntity = cachedEntityList[i];
 
@@ -140,9 +143,9 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 			// you can get the gamescenenode earlier without getting the playerpawn because the controller has the pointer to gamescenenode too
 			uintptr_t pawnGameSceneNode = mem.Read<uintptr_t>(playerPawn + m_pGameSceneNode);
-			int32_t health = mem.Read<uintptr_t>(playerPawn + m_iHealth);
+			int32_t health = mem.Read<int32_t>(playerPawn + m_iHealth);
 			uint8_t teamNum = mem.Read<uint8_t>(playerPawn + m_iTeamNum);
-			//CGameSceneNode gameSceneNodeStruct = mem.Read<CGameSceneNode>(gameSceneNode);
+			
 			
 			if (localPlayerPawn == playerPawn) continue;
 			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;

@@ -217,7 +217,7 @@ const HWND Drawer::makeWindow(WNDCLASSEXW windowClass, HINSTANCE instance, float
 		windowName,
 		WS_POPUP,
 		0, 0,
-		width, height,
+		static_cast<int>(width), static_cast<int>(height),
 		nullptr,
 		nullptr,
 		windowClass.hInstance,

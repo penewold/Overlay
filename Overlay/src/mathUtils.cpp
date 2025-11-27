@@ -6,7 +6,7 @@ float distance(Vector3 begin, Vector3 end) {
 	float dy = begin.y - end.y;
 	float dz = begin.z - end.z;
 
-	float distance = sqrt(dx * dx + dy * dy + dz * dz);
+	float distance = sqrtf(dx * dx + dy * dy + dz * dz);
 
 	return distance;
 }
@@ -55,7 +55,7 @@ Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimens
 
 Vector3 normalize(Vector3 vec)
 {
-	float length = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+	float length = sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 	if (length == 0) {
 		return { 0, 0, 0 };
 	}

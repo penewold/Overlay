@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)build</OutDir>
+    <OutDir>$(SolutionDir)build\</OutDir>
     <IntDir>$(SolutionDir)build\intermediates\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);external</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)build</OutDir>
+    <OutDir>$(SolutionDir)build\</OutDir>
     <IntDir>$(SolutionDir)build\intermediates\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);external</IncludePath>
   </PropertyGroup>
@@ -153,7 +153,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtils.cpp" />
     <ClCompile Include="src\HackUtils.cpp" />
-    <ClCompile Include="src\offsets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\imconfig.h" />
