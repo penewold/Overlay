@@ -175,7 +175,13 @@ public:
 	T Read(uintptr_t address)
 	{
 		T buffer{ };
-		VRead(handle, (void*)address, &buffer, sizeof(T), 0);
+		bool result = VRead(handle, (void*)address, &buffer, sizeof(T), 0);
+
+		if (result == false) {
+			DWORD lastError = GetLastError();
+			int hi = lastError;
+		}
+		
 		return buffer;
 	}
 
