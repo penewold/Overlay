@@ -93,6 +93,7 @@ Vector4 multiplyMat4Vec4(Vector4 vec, Matrix4 mat);
 Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimensions);
 
 float distance(Vector3 begin, Vector3 end);
+float distance(Vector2 begin, Vector2 end); 
 Vector3 lerp(Vector3 begin, Vector3 end, float t);
 float lerp(float begin, float end, float t);
 Vector3 normalize(Vector3 vec);

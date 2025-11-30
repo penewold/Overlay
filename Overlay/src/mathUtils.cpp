@@ -11,6 +11,15 @@ float distance(Vector3 begin, Vector3 end) {
 	return distance;
 }
 
+float distance(Vector2 begin, Vector2 end) {
+	float dx = begin.x - end.x;
+	float dy = begin.y - end.y;
+
+	float distance = sqrtf(dx * dx + dy * dy);
+
+	return distance;
+}
+
 Vector3 lerp(Vector3 begin, Vector3 end, float t)
 {
 	Vector3 result;
