@@ -20,6 +20,8 @@
 #include "HackUtils.h"
 #include "tui.h"
 
+#define ENT_COUNT 512
+
 Vector2 screenDim(0, 0);
 
 // Settings:
@@ -36,14 +38,14 @@ bool doBoxEsp = true;
 float boxRounding = 0.f;
 float boxThickness = 1.f;
 bool doHealthEsp = true;
-bool doSkeletonEsp = false;
+bool doSkeletonEsp = true;
 
 bool running = true;
 
 bool showMenu = false;
 bool menuDebounce = true;
 
-uintptr_t cachedEntityList[1024];
+uintptr_t cachedEntityList[ENT_COUNT];
 
 HWND previousWindow = nullptr;
 
@@ -79,7 +81,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	uint64_t currentTime = GetTickCount64();
 
 	uint64_t lastEntityCacheTime = currentTime;
-	hack.fillEntityCache(cachedEntityList, 64);
+	hack.fillEntityCache(cachedEntityList, ENT_COUNT);
 
 	while (running) {
 		
@@ -94,7 +96,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		if ((currentTime - lastEntityCacheTime) > 1000) {
 			lastEntityCacheTime = currentTime;
-			hack.fillEntityCache(cachedEntityList, 64);
+			hack.fillEntityCache(cachedEntityList, ENT_COUNT);
 
 			localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
 			localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
@@ -115,9 +117,11 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		int entcount1 = 0;
 
-		for (int i = 0; i < 64; i++) {
-			uintptr_t currentEntity = hack.getEntity(i);
-			//uintptr_t currentEntity = cachedEntityList[i];
+		
+
+		for (int i = 0; i < ENT_COUNT; i++) {
+			//uintptr_t currentEntity = hack.getEntity(i);
+			uintptr_t currentEntity = cachedEntityList[i];
 
 			if (!currentEntity)
 				continue;
@@ -132,7 +136,30 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			Vector2 entityScreenLocation = worldToScreen(entityLocation, viewMatrix, screenDim);
 
 			std::string entityTypeStr = std::to_string(entityType);
-			drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation.x + 10, entityScreenLocation.y);
+			if (entityType == 61) {
+				
+				drawer.drawTextCentered("shut up chicken", entityScreenLocation.x + 5, entityScreenLocation.y);
+				if (doSkeletonEsp) {
+					uintptr_t boneArrayPtr = mem.Read<uintptr_t>(entityGameSceneNode + m_modelState + m_skeletonInstance);
+
+					std::vector<Vector3> bones;
+					bones.reserve(27);
+					if (boneArrayPtr) {
+						// flip this if later when in seperate function
+						for (int boneId = 0; boneId < 27; boneId++) {
+							Vector3 bonePos = mem.Read<Vector3>(boneArrayPtr + boneId * 0x20);
+							bones.push_back(bonePos);
+							Vector2 scrpos = worldToScreen(bonePos, viewMatrix, screenDim);
+							drawer.drawCircleFilled(scrpos.x, scrpos.y, 2, lerp(healthStartColor, healthEndColor, boneId / 27.f));
+						}
+
+					}
+				}
+			}
+			else {
+				//drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation.x + 10, entityScreenLocation.y);
+			}
+			
 
 
 			// Read the pawn handle (m_hPlayerPawn)
@@ -153,31 +180,27 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			
 			
 			if (localPlayerPawn == playerPawn) continue;
-			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
-			if (health == 0 && doHealthCheck) continue;
-
-			// Skeleton esp
 			if (doSkeletonEsp) {
-				uintptr_t boneArrayPtr_ptr = mem.Read<uintptr_t>(pawnGameSceneNode + m_modelState + m_skeletonInstance);
-				uintptr_t boneArrayPtr = mem.Read<uintptr_t>(boneArrayPtr_ptr);
+				uintptr_t boneArrayPtr = mem.Read<uintptr_t>(pawnGameSceneNode + m_modelState + m_skeletonInstance);
 
 				std::vector<Vector3> bones;
 				bones.reserve(27);
 				if (boneArrayPtr) {
 					// flip this if later when in seperate function
-					uint64_t firstTest = mem.Read<uint64_t>(boneArrayPtr);
 					for (int boneId = 0; boneId < 27; boneId++) {
 						Vector3 bonePos = mem.Read<Vector3>(boneArrayPtr + boneId * 0x20);
 						bones.push_back(bonePos);
-						if (bonePos.x != 0 || bonePos.y != 0 || bonePos.z != 0) {
-							std::cout << "non-zero bone found!! ";
-						}
+						Vector2 scrpos = worldToScreen(bonePos, viewMatrix, screenDim);
+						drawer.drawCircleFilled(scrpos.x, scrpos.y, 2, lerp(healthStartColor, healthEndColor, boneId / 27.f));
 					}
-					std::cout << "added bones for entity (" << i << ")\n";
-					std::cout << "first: " << bones.at(0).x << ", " << bones.at(0).y << ", " << bones.at(0).y << "\n";
-					
+
 				}
 			}
+			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
+			if (health == 0 && doHealthCheck) continue;
+
+			// Skeleton esp
+			
 			
 
 			// General esps

@@ -23,6 +23,7 @@ namespace entityTypes {
 		ANIMATEDPROP = 191,
 		BOMBITEM = 47,
 		PLANTSITE = 153,
+		CHICKEN = 61,
 
 	};
 
@@ -32,6 +33,18 @@ namespace entityTypes {
 		P90GUNITEM = 148,
 		NOVAGUNITEM = 116,
 		GLOCKGUNITEM = 182,
+		AK47ITEM = 4,
+		XM1014ITEM = 73,
+		SSG08ITEM = 238,
+		DUALBERETTASITEM = 91,
+		DEAGLEITEM = 135,
+		P250ITEM = 132,
+		GALILITEM = 163,
+		MP5ITEM = 69,
+		TEC9IEM = 16,
+		MAC10ITEM = 19,
+		SG = 553,
+		AWP = 24,
 	};
 
 	enum grenades {
@@ -42,13 +55,14 @@ namespace entityTypes {
 		DECOYGRENADE = 170,
 	};
 
-	enum GrenadeItems {
+	enum grenadeItems {
 		HEGRENADEITEM = 210,
 		SMOKEGRENADEITEM = 168,
 		FLASHGRENADEITEM = 49,
 		MOLOTOVGRENADEITEM = 187,
 		DECOYGRENADEITEM = 153,
 	};
+
 
 }
 
