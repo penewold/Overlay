@@ -21,15 +21,14 @@ constexpr int CHUNK_SHIFT = 9;
 constexpr uintptr_t OFFSET_CHUNK_ARRAY = 0x10;  // +16 from entityList
 constexpr uintptr_t ENTITY_OFFSET = 0x70; // 112 decimal (changed in recent update)
 
-// Resolve any entity (Controller or Pawn) by index using masks
+// Resolve handle to entity
 uintptr_t HackUtils::getEntity(int index)
 {
-
 	// entities are stored inside buckets of 512 entities
 	// there are max 64 buckets
 
-	// ands with this: 0000 0000 0000 0000 0111 1111 1111 1111 (0x7FFF)
-	// so any number above 0x7FFF (32767) is just modulo to below
+	// ands/masks with this: 0000 0000 0000 0000 0111 1111 1111 1111 (0x7FFF)
+	// so any number above 0x7FFF (32767) is masked to something below
 	// then it's shifted right 9 times. For example for 1067:
 	// 0000 0100 0010 1011 becomes 0000 0000 0000 0010 so 2
 	// the int is locked to below 32768 (1 << 15) so we can ignore everything but the right most 15 bits
@@ -60,10 +59,16 @@ uintptr_t HackUtils::getEntity(int index)
 
 }
 
-void HackUtils::fillEntityCache(uintptr_t list[], size_t size) {
-	for (int index = 0; index < size; index++) {
-		list[index] = getEntity(index);
+void HackUtils::fillEntityCache() {
+	for (int index = 0; index < sizeof(entityListCache) / sizeof(uintptr_t); index++) {
+		entityListCache[index] = getEntity(index);
 	}
+}
+
+uintptr_t HackUtils::getCachedEntity(uint16_t index) {
+	if (index < 0) return 0;
+	if (index >= ENT_CACHE_SIZE) return getEntity(index);
+	return entityListCache[index];
 }
 
 /*int HackUtils::getEntityType(uintptr_t entityPtr) {
@@ -85,4 +90,20 @@ uint8_t HackUtils::getEntityType(uintptr_t entityGameSceneNode) {
 	uint8_t designerName = mem.Read<int>(entityIdentity + m_designerName);
 
 	return designerName;
+}
+
+std::vector<Vector3> HackUtils::getBones(uintptr_t gameSceneNode, uint16_t boneAmount) {
+	uintptr_t boneArrayPtr = mem.Read<uintptr_t>(gameSceneNode + m_modelState + m_skeletonInstance);
+
+	std::vector<Vector3> bones;
+	bones.reserve(boneAmount);
+	if (boneArrayPtr) {
+		// flip this if later when in seperate function
+		for (int boneId = 0; boneId < boneAmount; boneId++) {
+			Vector3 bonePos = mem.Read<Vector3>(boneArrayPtr + boneId * 0x20);
+			bones.push_back(bonePos);
+		}
+
+	}
+	return bones;
 }

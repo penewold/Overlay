@@ -1,19 +1,28 @@
 #pragma once
 #include "memory/memify.h"
 #include "mathUtils.h"
+
+#ifndef ENT_CACHE_SIZE
+#define ENT_CACHE_SIZE 1024
+#endif
+
 class HackUtils
 {
 private: 
 	memify& mem;
+	
 public:
 	uintptr_t entityList;
+	uintptr_t entityListCache[ENT_CACHE_SIZE];
 
 	HackUtils(memify& m);
 
 	void setEntList(uintptr_t listLocationPtr);
 	uintptr_t getEntity(int index);
-	void fillEntityCache(uintptr_t list[], size_t size);
+	void fillEntityCache();
 	uint8_t getEntityType(uintptr_t entityPtr);
+	uintptr_t getCachedEntity(uint16_t index);
+	std::vector<Vector3> getBones(uintptr_t gameSceneNode, uint16_t boneAmount);
 	//int getEntityType(uintptr_t entityGameSceneNode);	
 };
 
@@ -66,4 +75,118 @@ namespace entityTypes {
 
 }
 
+namespace skeletonData {
+    enum boneIndex : uint8_t
+    {
+        pelvis = 0,
+        spine_0 = 1,
+        spine_1 = 2,
+        spine_2 = 3,
+        spine_3 = 4,
+        neck_0 = 5,
+        head_0 = 6,
+        clavicle_l = 7,
+        arm_upper_l = 8,
+        arm_lower_l = 9,
+        hand_l = 10,
+        weapon_hand_l = 11,
+        clavicle_r = 12,
+        arm_upper_r = 13,
+        arm_lower_r = 14,
+        hand_r = 15,
+        weapon_hand_r = 16,
+        jiggle_primary = 17,
+        chesthier_offset = 18,
+        weaponhier_jnt = 19,
+        weaponhier_r_iktarget = 20,
+        weaponhier_l_iktarget = 21,
+        leg_upper_l = 22,
+        leg_lower_l = 23,
+        ankle_l = 24,
+        leg_upper_r = 25,
+        leg_lower_r = 26,
+        ankle_r = 27,
+        root_motion = 28,
+        leg_l_offset = 29,
+        leg_l_iktarget = 30,
+        leg_r_offset = 31,
+        leg_r_iktarget = 32,
+        eyeball_l = 33,
+        eyeball_r = 34,
+        eye_target = 35,
+        head_0_twist = 36,
+        arm_lower_l_twist = 37,
+        arm_lower_l_twist1 = 38,
+        finger_middle_meta_l = 39,
+        finger_middle_0_l = 40,
+        finger_middle_1_l = 41,
+        finger_middle_2_l = 42,
+        finger_pinky_meta_l = 43,
+        finger_pinky_0_l = 44,
+        finger_pinky_1_l = 45,
+        finger_pinky_2_l = 46,
+        finger_index_meta_l = 47,
+        finger_index_0_l = 48,
+        finger_index_1_l = 49,
+        finger_index_2_l = 50,
+        finger_thumb_0_l = 51,
+        finger_thumb_1_l = 52,
+        finger_thumb_2_l = 53,
+        finger_ring_meta_l = 54,
+        finger_ring_0_l = 55,
+        finger_ring_1_l = 56,
+        finger_ring_2_l = 57,
+        arm_upper_l_twist1 = 58,
+        arm_upper_l_twist = 59,
+        pect_l_aimat = 60,
+        scapula_l = 61,
+        arm_lower_r_twist = 62,
+        arm_lower_r_twist1 = 63,
+        finger_middle_meta_r = 64,
+        finger_middle_0_r = 65,
+        finger_middle_1_r = 66,
+        finger_middle_2_r = 67,
+        finger_pinky_meta_r = 68,
+        finger_pinky_0_r = 69,
+        finger_pinky_1_r = 70,
+        finger_pinky_2_r = 71,
+        finger_index_meta_r = 72,
+        finger_index_0_r = 73,
+        finger_index_1_r = 74,
+        finger_index_2_r = 75,
+        finger_thumb_0_r = 76,
+        finger_thumb_1_r = 77,
+        finger_thumb_2_r = 78,
+        finger_ring_meta_r = 79,
+        finger_ring_0_r = 80,
+        finger_ring_1_r = 81,
+        finger_ring_2_r = 82,
+        arm_upper_r_twist1 = 83,
+        arm_upper_r_twist = 84,
+        pect_r_aimat = 85,
+        scapula_r = 86,
+        pect_l_aimup = 87,
+        pect_r_aimup = 88,
+        scap_aimup = 89,
+        pectaim_l = 90,
+        pecttrans_l = 91,
+        pectaim_r = 92,
+        pecttrans_r = 93,
+        scap_r_aimat = 94,
+        scap_l_aimat = 95,
+        pect_l_ptbase = 96,
+        pect_r_ptbase = 97,
+        ball_l = 98,
+        leg_upper_l_twist = 99,
+        leg_upper_l_twist1 = 100,
+        ball_r = 101,
+        leg_upper_r_twist = 102,
+        leg_upper_r_twist1 = 103,
+        feet_l = 104,
+        feet_r = 109,
+        knife_attachment = 114,
+        main_weapon_attachment = 124,
+        pistol_attachment = 113
 
+    };
+}

@@ -182,6 +182,7 @@
     <ClInclude Include="external\offsets\schemasystem_dll.hpp" />
     <ClInclude Include="external\offsets\server_dll.hpp" />
     <ClInclude Include="external\offsets\soundsystem_dll.hpp" />
+    <ClInclude Include="external\offsets\steamaudio_dll.hpp" />
     <ClInclude Include="external\offsets\vphysics2_dll.hpp" />
     <ClInclude Include="external\offsets\worldrenderer_dll.hpp" />
     <ClInclude Include="src\drawtool\drawer.h" />

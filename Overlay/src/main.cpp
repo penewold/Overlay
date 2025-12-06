@@ -20,7 +20,9 @@
 #include "HackUtils.h"
 #include "tui.h"
 
-#define ENT_COUNT 64
+#define ENT_COUNT 512
+#define ENT_CACHE_SIZE 512
+#define CACHE_REFRESH_RATE 1000
 
 Vector2 screenDim(0, 0);
 
@@ -44,8 +46,6 @@ bool running = true;
 
 bool showMenu = false;
 bool menuDebounce = true;
-
-uintptr_t cachedEntityList[ENT_COUNT];
 
 HWND previousWindow = nullptr;
 
@@ -81,7 +81,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	uint64_t currentTime = GetTickCount64();
 
 	uint64_t lastEntityCacheTime = currentTime;
-	hack.fillEntityCache(cachedEntityList, ENT_COUNT);
+	hack.fillEntityCache();
 
 	while (running) {
 		
@@ -94,9 +94,9 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		drawer.initFrame(exitApp);
 		currentTime = GetTickCount64();
 
-		if ((currentTime - lastEntityCacheTime) > 1000) {
+		if ((currentTime - lastEntityCacheTime) > CACHE_REFRESH_RATE) {
 			lastEntityCacheTime = currentTime;
-			hack.fillEntityCache(cachedEntityList, ENT_COUNT);
+			hack.fillEntityCache();
 
 			localPlayerPawn = mem.Read<uintptr_t>(client + dwLocalPlayerPawn);
 			localPlayerGameSceneNode = mem.Read<uintptr_t>(localPlayerPawn + m_pGameSceneNode);
@@ -121,7 +121,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 		for (int i = 0; i < ENT_COUNT; i++) {
 			//uintptr_t currentEntity = hack.getEntity(i);
-			uintptr_t currentEntity = cachedEntityList[i];
+			uintptr_t currentEntity = hack.getCachedEntity(i);
 
 			if (!currentEntity)
 				continue;
@@ -138,21 +138,13 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			std::string entityTypeStr = std::to_string(entityType);
 			if (entityType == 61) {
 				
-				drawer.drawTextCentered("shut up chicken", entityScreenLocation.x + 5, entityScreenLocation.y);
 				if (doSkeletonEsp) {
-					uintptr_t boneArrayPtr = mem.Read<uintptr_t>(entityGameSceneNode + m_modelState + m_skeletonInstance);
+					std::vector<Vector3> chickenBones = hack.getBones(entityGameSceneNode, 54);
 
-					std::vector<Vector3> bones;
-					bones.reserve(54);
-					if (boneArrayPtr) {
-						// flip this if later when in seperate function
-						for (int boneId = 0; boneId < 54; boneId++) {
-							Vector3 bonePos = mem.Read<Vector3>(boneArrayPtr + boneId * 0x20);
-							bones.push_back(bonePos);
-							Vector2 scrpos = worldToScreen(bonePos, viewMatrix, screenDim);
-							drawer.drawCircleFilled(scrpos.x, scrpos.y, 2, lerp(healthStartColor, healthEndColor, boneId / 54.f));
-						}
-
+					for (auto bonePosition : chickenBones) {
+						Vector2 screenPosition = worldToScreen(bonePosition, viewMatrix, screenDim);
+						drawer.drawCircle(screenPosition.x, screenPosition.y, 2.f);
+						
 					}
 				}
 			}
@@ -187,30 +179,25 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
 			Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
 			Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
-			float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
-			float width = 10000 / distanceToLocalPlayer;
+			//float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
+			
+			float width = (topScreenPos.y - bottomScreenPos.y) * 0.2f;
 
 			if (doSkeletonEsp) {
 				uintptr_t boneArrayPtr = mem.Read<uintptr_t>(pawnGameSceneNode + m_modelState + m_skeletonInstance);
 
-				std::vector<Vector3> bones;
-				bones.reserve(28);
-				if (boneArrayPtr) {
-					// flip this if later when in seperate function
-					for (int boneId = 0; boneId < 28; boneId++) {
-						Vector3 bonePos = mem.Read<Vector3>(boneArrayPtr + boneId * 0x20);
-						bones.push_back(bonePos);
-						Vector2 scrpos = worldToScreen(bonePos, viewMatrix, screenDim);
-						if (boneId == 6) {
-							Vector2 offsetScr = worldToScreen(bonePos + Vector3(0, 0, 5.5f), viewMatrix, screenDim);
-							drawer.drawCircle(scrpos.x, scrpos.y, distance(scrpos, offsetScr));
-						}
-						/*
-						drawer.drawTextCentered(std::to_string(boneId).c_str(), scrpos.x, scrpos.y - 4);
-						drawer.drawCircleFilled(scrpos.x, scrpos.y, 2, lerp(healthStartColor, healthEndColor, boneId / 28.f));
-						*/
+				// basic bones are till 28. All are till 124
+				std::vector<Vector3> playerBones = hack.getBones(pawnGameSceneNode, 28);
+				int boneId = 0;
+				for (auto bonePosition : playerBones) {
+					Vector2 screenPosition = worldToScreen(bonePosition, viewMatrix, screenDim);
+					if (boneId == 6) {
+						Vector2 offsetScreenPosition = worldToScreen(bonePosition + Vector3(0, 0, 5.5f), viewMatrix, screenDim);
+						drawer.drawCircle(screenPosition.x, screenPosition.y, distance(screenPosition, offsetScreenPosition));
 					}
-
+					/*drawer.drawTextCentered(std::to_string(boneId).c_str(), screenPosition.x, screenPosition.y);*/
+					
+					boneId++;
 				}
 			}
 
