@@ -7,8 +7,17 @@ struct Vector2 {
 
 	Vector2() : x(0), y(0) {}
 	Vector2(float x, float y) : x(x), y(y) {}
+	Vector2(const ImVec2& v)
+		: x(v.x), y(v.y) {
+	}
+	operator ImVec2() const {
+		return ImVec2(x, y);
+	}
 
-
+	Vector2 operator+(const Vector2& v) const { return Vector2(x + v.x, y + v.y); }
+	Vector2 operator-(const Vector2& v) const { return Vector2(x - v.x, y - v.y); }
+	Vector2 operator+(float scalar) const { return Vector2(x * scalar, y * scalar); }
+	Vector2 operator/(float scalar) const { return Vector2(x / scalar, y / scalar); }
 };
 
 struct Vector3 {
@@ -21,6 +30,7 @@ struct Vector3 {
 	Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
 	Vector3 operator-(const Vector3& v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
 	Vector3 operator*(float scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
+	Vector3 operator/(float scalar) const { return Vector3(x / scalar, y / scalar, z / scalar); }
 };
 
 struct Vector4 {
@@ -34,6 +44,7 @@ struct Vector4 {
 	Vector4 operator+(const Vector4& v) const { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }
 	Vector4 operator-(const Vector4& v) const { return Vector4(x - v.x, y - v.y, z - v.z, w - v.w); }
 	Vector4 operator*(float scalar) const { return Vector4(x * scalar, y * scalar, z * scalar, w * scalar); }
+	Vector4 operator/(float scalar) const { return Vector4(x / scalar, y / scalar, z / scalar, w / scalar); }
 };
 
 struct Matrix4 {

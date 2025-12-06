@@ -143,13 +143,13 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 
 					for (auto bonePosition : chickenBones) {
 						Vector2 screenPosition = worldToScreen(bonePosition, viewMatrix, screenDim);
-						drawer.drawCircle(screenPosition.x, screenPosition.y, 2.f);
+						drawer.drawCircle(screenPosition, 2.f);
 						
 					}
 				}
 			}
 			else {
-				//drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation.x + 10, entityScreenLocation.y);
+				drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation + Vector2(10.f, 0.f));
 			}
 			
 

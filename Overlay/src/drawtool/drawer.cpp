@@ -1,4 +1,6 @@
 #include "drawer.h"
+#include "../mathUtils.h"
+#include <string>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -113,8 +115,6 @@ void Drawer::initFrame(void (*quitFunction)()) {
 	ImGui_ImplWin32_NewFrame();
 
 	ImGui::NewFrame();
-
-	Drawer::backgroundDrawList = ImGui::GetBackgroundDrawList();
 }
 
 void Drawer::drawFrame() {
@@ -130,6 +130,7 @@ void Drawer::drawFrame() {
 }
 
 void Drawer::drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding, float thickness) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddRect(
 		ImVec2(xMinimum, yMinimum),
 		ImVec2(xMaximum, yMaximum),
@@ -140,7 +141,20 @@ void Drawer::drawBox(float xMinimum, float yMinimum, float xMaximum, float yMaxi
 	);
 }
 
+void Drawer::drawBox(Vector2 minimum, Vector2 maximum, ImColor color, float rounding, float thickness) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
+	backgroundDrawList->AddRect(
+		minimum,
+		maximum,
+		color,
+		rounding,
+		0,
+		thickness
+	);
+}
+
 void Drawer::drawBoxFilled(float xMinimum, float yMinimum, float xMaximum, float yMaximum, ImColor color, float rounding) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddRectFilled(
 		ImVec2(xMinimum, yMinimum),
 		ImVec2(xMaximum, yMaximum),
@@ -149,7 +163,18 @@ void Drawer::drawBoxFilled(float xMinimum, float yMinimum, float xMaximum, float
 	);
 }
 
+void Drawer::drawBoxFilled(Vector2 minimum, Vector2 maximum, ImColor color, float rounding) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
+	backgroundDrawList->AddRectFilled(
+		minimum,
+		maximum,
+		color,
+		rounding
+	);
+}
+
 void Drawer::drawLine(float xStart, float yStart, float xEnd, float yEnd, ImColor color, float thickness) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddLine(
 		ImVec2(xStart, yStart),
 		ImVec2(xEnd, yEnd),
@@ -158,7 +183,18 @@ void Drawer::drawLine(float xStart, float yStart, float xEnd, float yEnd, ImColo
 	);
 }
 
+void Drawer::drawLine(Vector2 start, Vector2 end, ImColor color, float thickness) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
+	backgroundDrawList->AddLine(
+		start,
+		end,
+		color,
+		thickness
+	);
+}
+
 void Drawer::drawCircle(float xCenter, float yCenter, float radius, ImColor color) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddCircle(
 		ImVec2(xCenter, yCenter),
 		radius,
@@ -166,7 +202,17 @@ void Drawer::drawCircle(float xCenter, float yCenter, float radius, ImColor colo
 	);
 }
 
+void Drawer::drawCircle(Vector2 center, float radius, ImColor color) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
+	backgroundDrawList->AddCircle(
+		center,
+		radius,
+		color
+	);
+}
+
 void Drawer::drawCircleFilled(float xCenter, float yCenter, float radius, ImColor color) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddCircleFilled(
 		ImVec2(xCenter, yCenter),
 		radius,
@@ -174,7 +220,17 @@ void Drawer::drawCircleFilled(float xCenter, float yCenter, float radius, ImColo
 	);
 }
 
+void Drawer::drawCircleFilled(Vector2 center, float radius, ImColor color) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
+	backgroundDrawList->AddCircleFilled(
+		center,
+		radius,
+		color
+	);
+}
+
 void Drawer::drawText(char* text, float x, float y, ImColor color) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddText(
 		ImVec2(x, y),
 		color,
@@ -184,6 +240,7 @@ void Drawer::drawText(char* text, float x, float y, ImColor color) {
 
 void Drawer::drawTextCentered(char* text, float x, float y, ImColor color) {
 	ImVec2 textSize = ImGui::CalcTextSize(text);
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddText(
 		ImVec2(x - textSize.x / 2.f, y - textSize.y / 2.f),
 		color,
@@ -193,12 +250,26 @@ void Drawer::drawTextCentered(char* text, float x, float y, ImColor color) {
 
 void Drawer::drawTextCentered(const char* text, float x, float y, ImColor color) {
 	ImVec2 textSize = ImGui::CalcTextSize(text);
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddText(
 		ImVec2(x - textSize.x / 2.f, y - textSize.y / 2.f),
 		color,
 		text
 	);
 }
+
+/*template <typename T> void Drawer::drawTextCentered(T text, Vector2 position, ImColor color) {
+	std::stringstream ss;
+	ss << text;
+	std::string textStr = ss.str();
+
+	Vector2 textSize = ImGui::CalcTextSize(textStr.c_str());
+	backgroundDrawList->AddText(
+		position - textSize / 2.f,
+		color,
+		textStr.c_str()
+	);
+}*/
 
 WNDCLASSEXW Drawer::makeWindowClass(const wchar_t* className, HINSTANCE applicationInstance) {
 	WNDCLASSEXW wc{};
