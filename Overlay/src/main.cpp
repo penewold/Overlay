@@ -149,7 +149,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				}
 			}
 			else {
-				drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation + Vector2(10.f, 0.f));
+				//drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation + Vector2(10.f, 0.f));
 			}
 			
 
@@ -215,7 +215,8 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			if (doNameEsp) {
 				char playerName[128];
 				mem.ReadRaw(currentEntity + m_iszPlayerName, playerName, sizeof(playerName));
-				drawer.drawTextCentered(playerName, bottomScreenPos.x, bottomScreenPos.y + 3.f);
+				//drawer.drawTextCentered(playerName, bottomScreenPos.x, bottomScreenPos.y + 3.f);
+				drawer.drawTextCentered(playerName, bottomScreenPos + Vector2(0, 3.f));
 			}
 			
 		}
@@ -280,6 +281,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	
 		drawer.drawFrame();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		
 	}
 	return 0;
 }
