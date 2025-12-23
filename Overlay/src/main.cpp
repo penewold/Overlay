@@ -40,7 +40,11 @@ bool doBoxEsp = true;
 float boxRounding = 0.f;
 float boxThickness = 1.f;
 bool doHealthEsp = true;
+bool doChickenSkeletonEsp = false;
 bool doSkeletonEsp = true;
+bool doHeadEsp = true;
+float headSize = 5.5f;
+
 
 bool running = true;
 
@@ -138,7 +142,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			std::string entityTypeStr = std::to_string(entityType);
 			if (entityType == 61) {
 				
-				if (doSkeletonEsp) {
+				if (doChickenSkeletonEsp) {
 					std::vector<Vector3> chickenBones = hack.getBones(entityGameSceneNode, 54);
 
 					for (auto bonePosition : chickenBones) {
@@ -191,14 +195,34 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				int boneId = 0;
 				for (auto bonePosition : playerBones) {
 					Vector2 screenPosition = worldToScreen(bonePosition, viewMatrix, screenDim);
-					if (boneId == 6) {
-						Vector2 offsetScreenPosition = worldToScreen(bonePosition + Vector3(0, 0, 5.5f), viewMatrix, screenDim);
+					if (boneId == 6 && doHeadEsp) {
+						Vector2 offsetScreenPosition = worldToScreen(bonePosition + Vector3(0, 0, headSize), viewMatrix, screenDim);
 						drawer.drawCircle(screenPosition.x, screenPosition.y, distance(screenPosition, offsetScreenPosition));
 					}
-					/*drawer.drawTextCentered(std::to_string(boneId).c_str(), screenPosition.x, screenPosition.y);*/
+					//drawer.drawTextCentered(std::to_string(boneId).c_str(), screenPosition.x, screenPosition.y);
 					
 					boneId++;
 				}
+
+				for (auto boneConnection : skeletonData::boneConnections) {
+					Vector2 start = worldToScreen(
+						playerBones.at(boneConnection.first),
+						viewMatrix,
+						screenDim
+					);
+					Vector2 end = worldToScreen(
+						playerBones.at(boneConnection.second),
+						viewMatrix,
+						screenDim
+					);
+					if (!start || !end) continue;
+					drawer.drawLine(
+						start, 
+						end
+					);
+				}
+
+
 			}
 
 			if (doBoxEsp) {
@@ -250,10 +274,14 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 				ImGui::Unindent(20.f);
 				
 			}
-			
+			ImGui::Checkbox("Chicken Skeleton ESP", &doChickenSkeletonEsp);
 			ImGui::Checkbox("Skeleton ESP", &doSkeletonEsp);
 			if (doSkeletonEsp) {
 				ImGui::Text("doing skeleton esp");
+				ImGui::Checkbox("Head ESP", &doHeadEsp);
+				if (doHeadEsp) {
+					ImGui::DragFloat("Head size (units)", &headSize, 0.1f);
+				}
 			}
 
 			ImGui::Checkbox("Health ESP", &doHealthEsp);

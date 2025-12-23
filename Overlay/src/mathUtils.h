@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include <cmath>
 #include "imgui/imgui.h"
 
 struct Vector2 {
@@ -13,11 +14,16 @@ struct Vector2 {
 	operator ImVec2() const {
 		return ImVec2(x, y);
 	}
+	explicit operator bool() const noexcept {
+		static constexpr double EPS = 1e-9;
+		return std::abs(x) >= EPS || std::abs(y) >= EPS;
+	}
 
 	Vector2 operator+(const Vector2& v) const { return Vector2(x + v.x, y + v.y); }
 	Vector2 operator-(const Vector2& v) const { return Vector2(x - v.x, y - v.y); }
 	Vector2 operator+(float scalar) const { return Vector2(x * scalar, y * scalar); }
 	Vector2 operator/(float scalar) const { return Vector2(x / scalar, y / scalar); }
+	
 };
 
 struct Vector3 {
@@ -25,6 +31,11 @@ struct Vector3 {
 
 	Vector3() : x(0), y(0), z(0) {}  // Default constructor
 	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+
+	explicit operator bool() const noexcept {
+		static constexpr double EPS = 1e-9;
+		return std::abs(x) >= EPS || std::abs(y) >= EPS || std::abs(z) >= EPS;
+	}
 
 	// Basic operations
 	Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
@@ -39,6 +50,11 @@ struct Vector4 {
 	Vector4() : x(0), y(0), z(0), w(0) {}  // Default constructor
 	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 	Vector4(Vector3 vec, float w) : x(vec.x), y(vec.y), z(vec.z), w(w) {}
+
+	explicit operator bool() const noexcept {
+		static constexpr double EPS = 1e-9;
+		return std::abs(x) >= EPS || std::abs(y) >= EPS || std::abs(z) >= EPS || std::abs(w) >= EPS;
+	}
 
 	// Basic operations
 	Vector4 operator+(const Vector4& v) const { return Vector4(x + v.x, y + v.y, z + v.z, w + v.w); }

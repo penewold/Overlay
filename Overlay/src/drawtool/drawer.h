@@ -53,6 +53,7 @@ public:
 	void drawBoxFilled(Vector2 minimum, Vector2 maximum, ImColor color = ImColor(1.f, 1.f, 1.f), float rounding = 0);
 	void drawLine(float xStart, float yStart, float xEnd, float yEnd, ImColor color = ImColor(1.f, 1.f, 1.f), float thickness = 1);
 	void drawLine(Vector2 start, Vector2 end, ImColor color = ImColor(1.f, 1.f, 1.f), float thickness = 1);
+	void drawLine(Vector3 start, Vector3 end, ImColor color = ImColor(1.f, 1.f, 1.f), float thickness = 1);
 	void drawCircle(float xCenter, float yCenter, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));
 	void drawCircleFilled(float xCenter, float yCenter, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));
 	void drawCircle(Vector2 center, float radius, ImColor color = ImColor(1.f, 1.f, 1.f));

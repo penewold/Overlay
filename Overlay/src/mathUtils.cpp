@@ -44,7 +44,7 @@ Vector2 worldToScreen(Vector3 worldPos, Matrix4 viewMatrix, Vector2 screenDimens
 	Vector2 screenPos;
 
 	if (transformed.w <= 0.0f) {
-		return Vector2(-1, -1); // off-screen or invalid
+		return Vector2(0, 0); // off-screen or invalid
 	}
 
 	// Perspective divide to get NDC

@@ -189,4 +189,40 @@ namespace skeletonData {
         pistol_attachment = 113
 
     };
+
+    static std::vector<std::pair<boneIndex, boneIndex>> boneConnections = {
+        // Spine chain
+        {boneIndex::pelvis,     boneIndex::spine_0},
+        {boneIndex::spine_0,    boneIndex::spine_1},
+        {boneIndex::spine_1,    boneIndex::spine_2},
+        {boneIndex::spine_2,    boneIndex::spine_3},
+        {boneIndex::spine_3,    boneIndex::neck_0},
+        {boneIndex::neck_0,     boneIndex::head_0},
+
+        // Left arm
+        {boneIndex::spine_3,    boneIndex::clavicle_l},
+        {boneIndex::clavicle_l, boneIndex::arm_upper_l},
+        {boneIndex::arm_upper_l,boneIndex::arm_lower_l},
+        {boneIndex::arm_lower_l,boneIndex::hand_l},
+
+        // Right arm
+        {boneIndex::spine_3,    boneIndex::clavicle_r},
+        {boneIndex::clavicle_r, boneIndex::arm_upper_r},
+        {boneIndex::arm_upper_r,boneIndex::arm_lower_r},
+        {boneIndex::arm_lower_r,boneIndex::hand_r},
+
+        // Left leg
+        {boneIndex::pelvis,     boneIndex::leg_upper_l},
+        {boneIndex::leg_upper_l,boneIndex::leg_lower_l},
+        {boneIndex::leg_lower_l,boneIndex::ankle_l},
+
+        // Right leg
+        {boneIndex::pelvis,     boneIndex::leg_upper_r},
+        {boneIndex::leg_upper_r,boneIndex::leg_lower_r},
+        {boneIndex::leg_lower_r,boneIndex::ankle_r},
+
+        // Hands
+        {boneIndex::hand_l,     boneIndex::weapon_hand_l},
+        {boneIndex::hand_r,     boneIndex::weapon_hand_r},
+    };
 }

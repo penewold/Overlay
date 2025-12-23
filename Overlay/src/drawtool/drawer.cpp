@@ -193,6 +193,16 @@ void Drawer::drawLine(Vector2 start, Vector2 end, ImColor color, float thickness
 	);
 }
 
+void Drawer::drawLine(Vector3 start, Vector3 end, ImColor color, float thickness) {
+	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
+	backgroundDrawList->AddLine(
+		ImVec2(start.x, start.y),
+		ImVec2(end.x, end.y),
+		color,
+		thickness
+	);
+}
+
 void Drawer::drawCircle(float xCenter, float yCenter, float radius, ImColor color) {
 	ImDrawList* backgroundDrawList = ImGui::GetBackgroundDrawList();
 	backgroundDrawList->AddCircle(
