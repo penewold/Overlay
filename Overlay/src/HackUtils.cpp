@@ -107,3 +107,58 @@ std::vector<Vector3> HackUtils::getBones(uintptr_t gameSceneNode, uint16_t boneA
 	}
 	return bones;
 }
+
+void HackUtils::drawHead(Drawer& drawer, std::vector<Vector3>& playerBones, ImColor headColor, float headSize, float headThickness) {
+	Vector3 headPos = playerBones.at(6);
+	Vector2 screenPosition = worldToScreen(headPos, drawer.viewMatrix, drawer.screenDim);
+	Vector3 offset = Vector3(0, 0, headSize);
+	Vector3 offsetPos = headPos + offset;
+	Vector2 offsetScreenPosition = worldToScreen(offsetPos, drawer.viewMatrix, drawer.screenDim);
+	drawer.drawCircle(screenPosition.x, screenPosition.y, distance(screenPosition, offsetScreenPosition), headColor);	
+}
+
+void HackUtils::drawSkeleton(Drawer &drawer, std::vector<Vector3> &playerBones, ImColor skeletonColor, float boneThickness) {
+	for (auto boneConnection : skeletonData::boneConnections) {
+		Vector2 start = worldToScreen(
+			playerBones.at(boneConnection.first),
+			drawer.viewMatrix,
+			drawer.screenDim
+		);
+		Vector3 endPos = playerBones.at(boneConnection.second);
+		Vector2 end = worldToScreen(
+			endPos,
+			drawer.viewMatrix,
+			drawer.screenDim
+		);
+		if (!start || !end) continue;
+		drawer.drawLine(
+			start,
+			end,
+			skeletonColor,
+			boneThickness
+		);
+	}
+}
+
+void HackUtils::drawChickenSkeleton(Drawer& drawer, std::vector<Vector3>& chickenBones, ImColor skeletonColor, float boneThickness) {
+	for (auto boneConnection : chickenSkeletonData::boneConnections) {
+		Vector2 start = worldToScreen(
+			chickenBones.at(boneConnection.first),
+			drawer.viewMatrix,
+			drawer.screenDim
+		);
+		Vector3 endPos = chickenBones.at(boneConnection.second);
+		Vector2 end = worldToScreen(
+			endPos,
+			drawer.viewMatrix,
+			drawer.screenDim
+		);
+		if (!start || !end) continue;
+		drawer.drawLine(
+			start,
+			end,
+			skeletonColor,
+			boneThickness
+		);
+	}
+}

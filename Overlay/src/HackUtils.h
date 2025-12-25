@@ -1,6 +1,9 @@
 #pragma once
 #include "memory/memify.h"
 #include "mathUtils.h"
+#include "drawtool/drawer.h"
+#include <vector>
+#include "settings.h"
 
 #ifndef ENT_CACHE_SIZE
 #define ENT_CACHE_SIZE 1024
@@ -14,6 +17,7 @@ private:
 public:
 	uintptr_t entityList;
 	uintptr_t entityListCache[ENT_CACHE_SIZE];
+    //Drawer& drawer;
 
 	HackUtils(memify& m);
 
@@ -23,7 +27,12 @@ public:
 	uint8_t getEntityType(uintptr_t entityPtr);
 	uintptr_t getCachedEntity(uint16_t index);
 	std::vector<Vector3> getBones(uintptr_t gameSceneNode, uint16_t boneAmount);
-	//int getEntityType(uintptr_t entityGameSceneNode);	
+	
+    void drawHead(Drawer& drawer, std::vector<Vector3>& playerBones, ImColor headColor = ImColor(1.f, 1.f, 1.f), float headSize = 5.5f, float headThickness = 1.f);
+    void drawSkeleton(Drawer& drawer, std::vector<Vector3>& playerBones, ImColor skeletonColor = ImColor(1.f, 1.f, 1.f), float boneThickness = 1.f);
+    void drawChickenSkeleton(Drawer& drawer, std::vector<Vector3>& chickenBones, ImColor skeletonColor = ImColor(1.f, 1.f, 1.f), float boneThickness = 1.f);
+
+    //int getEntityType(uintptr_t entityGameSceneNode);	
 };
 
 namespace entityTypes {
@@ -224,5 +233,119 @@ namespace skeletonData {
         // Hands
         {boneIndex::hand_l,     boneIndex::weapon_hand_l},
         {boneIndex::hand_r,     boneIndex::weapon_hand_r},
+    };
+}
+
+namespace chickenSkeletonData {
+    enum boneIndex : uint8_t {
+        root = 0,
+        body_0 = 1,
+        body_1 = 2,
+        body_2 = 3,
+        collar_bone_0 = 4,
+        breast_l = 5,
+        wing_root_l = 6,
+        wing_mid_l = 7,
+        wing_tip_l = 8,
+        neck_0 = 9,
+        neck_1 = 10,
+        neck_2 = 11,
+        head_0 = 12,
+        comb_front_0 = 13,
+        comb_front_1 = 14,
+        comb_back_0 = 15,
+        comb_back_1 = 16,
+        eye_l = 17,
+        beak_root = 18,
+        wattle_l_0 = 19,
+        wattle_l_1 = 20,
+        wattle_r_0 = 21,
+        wattle_r_1 = 22,
+        eye_r = 23,
+        breast_r = 24,
+        wing_root_r = 25,
+        wing_mid_r = 26,
+        wing_tip_r = 27,
+        tail_0 = 28, 
+        tail_1 = 29,
+        leg_l_0 = 30,
+        leg_l_1 = 31,
+        leg_l_2 = 32,
+        foot_l = 33,
+        left_toe_l_0 = 34,
+        left_toe_l_1 = 35,
+        middle_toe_l_0 = 36,
+        middle_toe_l_1 = 37,
+        right_toe_l_0 = 38,
+        right_toe_l_1 = 39,
+        hallux_l = 40,
+        leg_r_0 = 41,
+        leg_r_1 = 42,
+        leg_r_2 = 43,
+        foot_r = 44,
+        left_toe_r_0 = 45,
+        left_toe_r_1 = 46,
+        middle_toe_r_0 = 47,
+        middle_toe_r_1 = 48,
+        right_toe_r_0 = 49,
+        right_toe_r_1 = 50,
+        hallux_r = 51,
+    };
+
+    static std::vector<std::pair<boneIndex, boneIndex>> boneConnections = {
+        // Spine chain
+        {boneIndex::body_0,     boneIndex::collar_bone_0},
+        {boneIndex::collar_bone_0,     boneIndex::breast_l},
+        {boneIndex::breast_l,     boneIndex::wing_root_l},
+        {boneIndex::wing_root_l,     boneIndex::wing_mid_l},
+        {boneIndex::wing_mid_l,     boneIndex::wing_tip_l},
+
+        {boneIndex::collar_bone_0,     boneIndex::neck_0},
+        {boneIndex::neck_0,     boneIndex::neck_1},
+        {boneIndex::neck_1,     boneIndex::neck_2},
+        {boneIndex::neck_2,     boneIndex::head_0},
+        {boneIndex::head_0,     boneIndex::comb_front_0},
+        {boneIndex::comb_front_0,     boneIndex::comb_front_1},
+        {boneIndex::head_0,     boneIndex::comb_back_0},
+        {boneIndex::comb_back_0,     boneIndex::comb_back_1},
+        {boneIndex::head_0,     boneIndex::eye_l},
+        {boneIndex::head_0,     boneIndex::eye_r},
+        {boneIndex::head_0,     boneIndex::beak_root},
+        {boneIndex::beak_root,     boneIndex::wattle_l_0},
+        {boneIndex::wattle_l_0,     boneIndex::wattle_l_1},
+        {boneIndex::beak_root,     boneIndex::wattle_r_0},
+        {boneIndex::wattle_r_0,     boneIndex::wattle_r_1},
+
+        {boneIndex::collar_bone_0,     boneIndex::breast_r},
+        {boneIndex::breast_r,     boneIndex::wing_root_r},
+        {boneIndex::wing_root_r,     boneIndex::wing_mid_r},
+        {boneIndex::wing_mid_r,     boneIndex::wing_tip_r},
+
+        {boneIndex::body_0,     boneIndex::tail_0},
+        {boneIndex::tail_0,     boneIndex::tail_1},
+
+        {boneIndex::body_0,     boneIndex::leg_l_0},
+        {boneIndex::leg_l_0,     boneIndex::leg_l_1},
+        {boneIndex::leg_l_1,     boneIndex::leg_l_2},
+        {boneIndex::leg_l_2,     boneIndex::foot_l},
+        {boneIndex::foot_l,     boneIndex::left_toe_l_0},
+        {boneIndex::left_toe_l_0,     boneIndex::left_toe_l_1},
+        {boneIndex::foot_l,     boneIndex::middle_toe_l_0},
+        {boneIndex::middle_toe_l_0,     boneIndex::middle_toe_l_1},
+        {boneIndex::foot_l,     boneIndex::right_toe_l_0},
+        {boneIndex::right_toe_l_0,     boneIndex::right_toe_l_1},
+        {boneIndex::foot_l,     boneIndex::hallux_l},
+
+        {boneIndex::body_0,     boneIndex::leg_r_0},
+        {boneIndex::leg_r_0,     boneIndex::leg_r_1},
+        {boneIndex::leg_r_1,     boneIndex::leg_r_2},
+        {boneIndex::leg_r_2,     boneIndex::foot_r},
+        {boneIndex::foot_r,     boneIndex::left_toe_r_0},
+        {boneIndex::left_toe_r_0,     boneIndex::left_toe_r_1},
+        {boneIndex::foot_r,     boneIndex::middle_toe_r_0},
+        {boneIndex::middle_toe_r_0,     boneIndex::middle_toe_r_1},
+        {boneIndex::foot_r,     boneIndex::right_toe_r_0},
+        {boneIndex::right_toe_r_0,     boneIndex::right_toe_r_1},
+        {boneIndex::foot_r,     boneIndex::hallux_r},
     };
 }

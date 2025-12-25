@@ -9,6 +9,8 @@
 
 #include <stdexcept>
 #include "../mathUtils.h"
+
+#include <sstream>
 /*
 * ------ PLANNED USAGE ------
 * Drawer drawer(width, height, fps, instance, cmdShow);
@@ -39,8 +41,10 @@ class Drawer
 {
 public:
 	HWND window{ nullptr };
+	Vector2 screenDim;
+	Matrix4 viewMatrix;
 
-	Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow);
+	Drawer(Vector2 screenDimensions, UINT fps, HINSTANCE instance, INT cmdShow);
 	~Drawer();
 
 	// Pass your own function for quitting as the argument

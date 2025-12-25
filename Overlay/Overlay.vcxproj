@@ -153,6 +153,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mathUtils.cpp" />
     <ClCompile Include="src\HackUtils.cpp" />
+    <ClCompile Include="src\settings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\imconfig.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="src\logger.h" />
     <ClInclude Include="src\mathUtils.h" />
     <ClInclude Include="src\offsets.h" />
+    <ClInclude Include="src\settings.h" />
     <ClInclude Include="src\structs.h" />
     <ClInclude Include="src\HackUtils.h" />
     <ClInclude Include="src\tui.h" />

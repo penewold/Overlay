@@ -19,14 +19,16 @@
 #include "drawtool/drawer.h"
 #include "HackUtils.h"
 #include "tui.h"
+#include "settings.h"
 
-#define ENT_COUNT 512
-#define ENT_CACHE_SIZE 512
+#define ENT_COUNT 1024
+#define ENT_CACHE_SIZE 1024
 #define CACHE_REFRESH_RATE 1000
 
 Vector2 screenDim(0, 0);
 
 // Settings:
+/*
 ImColor boxColor = ImColor(1.f, 1.f, 1.f);
 ImColor healthStartColor = ImColor(0.f, 1.f, 0.f);
 ImColor healthEndColor = ImColor(1.f, 0.f, 0.f);
@@ -44,7 +46,9 @@ bool doChickenSkeletonEsp = false;
 bool doSkeletonEsp = true;
 bool doHeadEsp = true;
 float headSize = 5.5f;
+*/
 
+Settings settings;
 
 bool running = true;
 
@@ -69,13 +73,14 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	screenDim.x = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
 	screenDim.y = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
 
-	Drawer drawer(screenDim.x, screenDim.y, 60, instance, cmd_show);
+	Drawer drawer(screenDim, 60, instance, cmd_show);
 	memify mem("cs2.exe");
 	uintptr_t client = mem.GetBase("client.dll");
 
 	
-
+	
 	HackUtils hack(mem);
+	drawer.screenDim = screenDim;
 
 	uintptr_t entityList = mem.Read<uintptr_t>(client + dwEntityList);
 	hack.setEntList(entityList);
@@ -109,15 +114,17 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		std::cout << mem.Read<uint16_t>(client + dwEntitySystem_highestEntityIndex) << std::endl;
 
 		Matrix4 viewMatrix = mem.Read<Matrix4>(client + dwViewMatrix);
-		
-
+		drawer.viewMatrix = viewMatrix;
+		drawer.screenDim = screenDim;
 		
 		Vector3 localPlayerPos = mem.Read<Vector3>(localPlayerGameSceneNode + m_vecAbsOrigin);
 		uint8_t localPlayerTeamNum = mem.Read<uint8_t>(localPlayerPawn + m_iTeamNum);
 
+		/*
 		ImColor rainbowColor = rainbowColor.HSV((GetTickCount64() % rainbowTime) / (float)rainbowTime, .8f, .9f);
 
 		ImColor finalBoxColor = doRainbowBoxEsp ? rainbowColor : boxColor;
+		*/
 
 		int entcount1 = 0;
 
@@ -140,24 +147,15 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			Vector2 entityScreenLocation = worldToScreen(entityLocation, viewMatrix, screenDim);
 
 			std::string entityTypeStr = std::to_string(entityType);
-			if (entityType == 61) {
-				
-				if (doChickenSkeletonEsp) {
-					std::vector<Vector3> chickenBones = hack.getBones(entityGameSceneNode, 54);
-
-					for (auto bonePosition : chickenBones) {
-						Vector2 screenPosition = worldToScreen(bonePosition, viewMatrix, screenDim);
-						drawer.drawCircle(screenPosition, 2.f);
-						
-					}
-				}
-			}
-			else {
-				//drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation + Vector2(10.f, 0.f));
+			//drawer.drawTextCentered(entityTypeStr.c_str(), entityScreenLocation + Vector2(10.f, 0.f));
+			if (entityType == 61 && settings.espSettings.skeletonSettings.doChickenSkeletonEsp) {
+				std::vector<Vector3> chickenBones = hack.getBones(entityGameSceneNode, 52);
+				hack.drawChickenSkeleton(
+					drawer,
+					chickenBones
+				);
 			}
 			
-
-
 			// Read the pawn handle (m_hPlayerPawn)
 			// Assume they're a player
 			int pawnHandle = mem.Read<int>(currentEntity + m_hPlayerPawn) & 0x7FFF;
@@ -175,68 +173,50 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			uint8_t teamNum = mem.Read<uint8_t>(playerPawn + m_iTeamNum);
 			
 			if (localPlayerPawn == playerPawn) continue;
-			if (localPlayerTeamNum == teamNum && doTeamCheck) continue;
-			if (health == 0 && doHealthCheck) continue;
+			if (localPlayerTeamNum == teamNum && settings.espSettings.checkSettings.doTeamCheck) continue;
+			if (health == 0 && settings.espSettings.checkSettings.doHealthCheck) continue;
 
 			// esp
 			Vector3 bottomPos = mem.Read<Vector3>(pawnGameSceneNode + m_vecAbsOrigin);
 			Vector2 bottomScreenPos = worldToScreen(bottomPos, viewMatrix, screenDim);
-			Vector3 topPos = bottomPos + Vector3(0.f, 0.f, 72.f);
+			Vector3 topPos = bottomPos + Vector3(0.f, 0.f, settings.espSettings.boxSettings.playerHeight);
 			Vector2 topScreenPos = worldToScreen(topPos, viewMatrix, screenDim);
+			// IDEA: make box from 2 opposite corners
 			//float distanceToLocalPlayer = distance(localPlayerPos, bottomPos);
 			
-			float width = (topScreenPos.y - bottomScreenPos.y) * 0.2f;
+			float width = (topScreenPos.y - bottomScreenPos.y) * settings.espSettings.boxSettings.ratio;
 
-			if (doSkeletonEsp) {
-				uintptr_t boneArrayPtr = mem.Read<uintptr_t>(pawnGameSceneNode + m_modelState + m_skeletonInstance);
+			uintptr_t boneArrayPtr = mem.Read<uintptr_t>(pawnGameSceneNode + m_modelState + m_skeletonInstance);
 
+			if (settings.espSettings.doSkeletonEsp && boneArrayPtr) {
+				
 				// basic bones are till 28. All are till 124
 				std::vector<Vector3> playerBones = hack.getBones(pawnGameSceneNode, 28);
-				int boneId = 0;
-				for (auto bonePosition : playerBones) {
-					Vector2 screenPosition = worldToScreen(bonePosition, viewMatrix, screenDim);
-					if (boneId == 6 && doHeadEsp) {
-						Vector2 offsetScreenPosition = worldToScreen(bonePosition + Vector3(0, 0, headSize), viewMatrix, screenDim);
-						drawer.drawCircle(screenPosition.x, screenPosition.y, distance(screenPosition, offsetScreenPosition));
-					}
-					//drawer.drawTextCentered(std::to_string(boneId).c_str(), screenPosition.x, screenPosition.y);
-					
-					boneId++;
-				}
-
-				for (auto boneConnection : skeletonData::boneConnections) {
-					Vector2 start = worldToScreen(
-						playerBones.at(boneConnection.first),
-						viewMatrix,
-						screenDim
-					);
-					Vector2 end = worldToScreen(
-						playerBones.at(boneConnection.second),
-						viewMatrix,
-						screenDim
-					);
-					if (!start || !end) continue;
-					drawer.drawLine(
-						start, 
-						end
-					);
-				}
-
-
+				if (settings.espSettings.skeletonSettings.doHeadEsp) hack.drawHead(
+					drawer,
+					playerBones,
+					settings.espSettings.skeletonSettings.headColor,
+					settings.espSettings.skeletonSettings.headSize
+				);
+				hack.drawSkeleton(
+					drawer,
+					playerBones,
+					settings.espSettings.skeletonSettings.skeletonColor
+				);
 			}
 
-			if (doBoxEsp) {
-				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, finalBoxColor, boxRounding, boxThickness);
+			if (settings.espSettings.doBoxEsp) {
+				drawer.drawBox(bottomScreenPos.x - width, topScreenPos.y, bottomScreenPos.x + width, bottomScreenPos.y, settings.espSettings.boxSettings.boxColor, settings.espSettings.boxSettings.boxRounding, settings.espSettings.boxSettings.boxThickness);
 			}
 
-			if (doHealthEsp) {
-				ImColor healthBarColor = lerp(healthStartColor, healthEndColor, 1.f - (health / 100.f));
+			if (settings.espSettings.doHealthEsp) {
+				ImColor healthBarColor = lerp(settings.espSettings.healthSettings.healthStartColor, settings.espSettings.healthSettings.healthEndColor, 1.f - (health / 100.f));
 				float healthbarPos = lerp(bottomScreenPos.y, topScreenPos.y, health / 100.f);
 				// xMin, yMin, xMax, yMax
 				drawer.drawBoxFilled(bottomScreenPos.x - width - 3.f, bottomScreenPos.y, bottomScreenPos.x - width - 1.f, healthbarPos, healthBarColor, 0.f);
 			}
 
-			if (doNameEsp) {
+			if (settings.espSettings.doNameEsp) {
 				char playerName[128];
 				mem.ReadRaw(currentEntity + m_iszPlayerName, playerName, sizeof(playerName));
 				//drawer.drawTextCentered(playerName, bottomScreenPos.x, bottomScreenPos.y + 3.f);
@@ -250,42 +230,45 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Overlay Menu", &showMenu);
 			ImGui::Text("Esp Checks");
-			ImGui::Checkbox("Team Check", &doTeamCheck);
-			ImGui::Checkbox("Health Check", &doHealthCheck);
+			ImGui::Checkbox("Team Check", &settings.espSettings.checkSettings.doTeamCheck);
+			ImGui::Checkbox("Health Check", &settings.espSettings.checkSettings.doHealthCheck);
 
 			ImGui::Text("Esp");
-			ImGui::Checkbox("Box ESP", &doBoxEsp);
-			if (doBoxEsp) {
+			ImGui::Checkbox("Box ESP", &settings.espSettings.doBoxEsp);
+			if (settings.espSettings.doBoxEsp) {
 				ImGui::Indent(20.f);
-				ImGui::DragFloat("rounding", &boxRounding, 0.1f, 0.f, 10.f);
-				ImGui::DragFloat("thickness", &boxThickness, 0.1f, 1.f, 10.f);
-				ImGui::Checkbox("Rainbow Box ESP", &doRainbowBoxEsp);
-				ImGui::ColorButton("##colorbox", finalBoxColor, 0, ImVec2(20, 20));
+				ImGui::DragFloat("rounding", &settings.espSettings.boxSettings.boxRounding, 0.1f, 0.f, 10.f);
+				ImGui::DragFloat("thickness", &settings.espSettings.boxSettings.boxThickness, 0.1f, 1.f, 10.f);
+				//ImGui::Checkbox("Rainbow Box ESP", &doRainbowBoxEsp);
+				ImGui::ColorButton("##colorbox", settings.espSettings.boxSettings.boxColor, 0, ImVec2(20, 20));
 
-				if (!doRainbowBoxEsp) {
-					ImGui::ColorPicker3("Box Color", (float*)&boxColor,
+				//if (!doRainbowBoxEsp) {
+					ImGui::ColorPicker3("Box Color", (float*)&settings.espSettings.boxSettings.boxColor,
 						ImGuiColorEditFlags_NoSidePreview |
 						ImGuiColorEditFlags_NoInputs |
 						ImGuiColorEditFlags_NoLabel);
-				}
+					/*}
 				else {
 					ImGui::DragInt("Rainbow Time", &rainbowTime, 20.f, 100, 10000, "Time: %d ms");
-				}
+				}*/
 				ImGui::Unindent(20.f);
 				
 			}
-			ImGui::Checkbox("Chicken Skeleton ESP", &doChickenSkeletonEsp);
-			ImGui::Checkbox("Skeleton ESP", &doSkeletonEsp);
-			if (doSkeletonEsp) {
+			ImGui::Checkbox("Chicken Skeleton ESP", &settings.espSettings.skeletonSettings.doChickenSkeletonEsp);
+			if (settings.espSettings.skeletonSettings.doChickenSkeletonEsp) {
+				
+			}
+			ImGui::Checkbox("Skeleton ESP", &settings.espSettings.doSkeletonEsp);
+			if (settings.espSettings.doSkeletonEsp) {
 				ImGui::Text("doing skeleton esp");
-				ImGui::Checkbox("Head ESP", &doHeadEsp);
-				if (doHeadEsp) {
-					ImGui::DragFloat("Head size (units)", &headSize, 0.1f);
+				ImGui::Checkbox("Head ESP", &settings.espSettings.skeletonSettings.doHeadEsp);
+				if (settings.espSettings.skeletonSettings.doHeadEsp) {
+					ImGui::DragFloat("Head size (units)", &settings.espSettings.skeletonSettings.headSize, 0.1f);
 				}
 			}
 
-			ImGui::Checkbox("Health ESP", &doHealthEsp);
-			ImGui::Checkbox("Name ESP", &doNameEsp);
+			ImGui::Checkbox("Health ESP", &settings.espSettings.doHealthEsp);
+			ImGui::Checkbox("Name ESP", &settings.espSettings.doNameEsp);
 			ImGui::End();
 		}
 		else {

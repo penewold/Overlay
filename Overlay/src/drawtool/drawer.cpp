@@ -17,7 +17,7 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM w_param, LPA
 	return DefWindowProc(window, message, w_param, l_param);
 }
 
-Drawer::Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdShow)
+Drawer::Drawer(Vector2 screenDimensions, UINT fps, HINSTANCE instance, INT cmdShow)
 {
 
 	// -- Init Windows/D3D11 --
@@ -25,7 +25,7 @@ Drawer::Drawer(float width, float height, UINT fps, HINSTANCE instance, INT cmdS
 	Drawer::windowClass = makeWindowClass(L"Overlay Class", instance);
 	RegisterClassExW(&windowClass);
 
-	Drawer::window = makeWindow(windowClass, instance, width, height, L"Overlay");
+	Drawer::window = makeWindow(windowClass, instance, screenDimensions.x, screenDimensions.y, L"Overlay");
 	SetLayeredWindowAttributes(window, RGB(0, 0, 0), BYTE(255), LWA_ALPHA);
 	adjustWindowRect(window);
 
