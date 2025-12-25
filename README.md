@@ -16,3 +16,5 @@
 - rcs
 - aimbot
 - more options/better ui
+- bhop
+- triggerbot
